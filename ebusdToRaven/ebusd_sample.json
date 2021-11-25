@@ -1,0 +1,1836 @@
+﻿{
+  "720": {
+    "messages": {
+      "AdaptHeatCurve": {
+        "name": "AdaptHeatCurve",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "BankHolidayEndPeriod": {
+        "name": "BankHolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "BankHolidayStartPeriod": {
+        "name": "BankHolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ccTimer.Friday": {
+        "name": "ccTimer.Friday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ccTimer.Monday": {
+        "name": "ccTimer.Monday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ccTimer.Saturday": {
+        "name": "ccTimer.Saturday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ccTimer.Sunday": {
+        "name": "ccTimer.Sunday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ccTimer.Thursday": {
+        "name": "ccTimer.Thursday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ccTimer.Tuesday": {
+        "name": "ccTimer.Tuesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ccTimer.Wednesday": {
+        "name": "ccTimer.Wednesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ContinuosHeating": {
+        "name": "ContinuosHeating",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "currenterror": {
+        "name": "currenterror",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "CylinderChargeHyst": {
+        "name": "CylinderChargeHyst",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "CylinderChargeOffset": {
+        "name": "CylinderChargeOffset",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Date": {
+        "name": "Date",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "DisplayedOutsideTemp": {
+        "name": "DisplayedOutsideTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "errorhistory": {
+        "name": "errorhistory",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "FrostOverRideTime": {
+        "name": "FrostOverRideTime",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1ActualFlowTempDesired": {
+        "name": "Hc1ActualFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1AutoOffMode": {
+        "name": "Hc1AutoOffMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1CircuitType": {
+        "name": "Hc1CircuitType",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1ExcessTemp": {
+        "name": "Hc1ExcessTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1FlowTemp": {
+        "name": "Hc1FlowTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1HeatCurve": {
+        "name": "Hc1HeatCurve",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1HeatCurveAdaption": {
+        "name": "Hc1HeatCurveAdaption",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1MaxFlowTempDesired": {
+        "name": "Hc1MaxFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1MinFlowTempDesired": {
+        "name": "Hc1MinFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1MixerMovement": {
+        "name": "Hc1MixerMovement",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1PumpStatus": {
+        "name": "Hc1PumpStatus",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1RoomTempSwitchOn": {
+        "name": "Hc1RoomTempSwitchOn",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1Status": {
+        "name": "Hc1Status",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc1SummerTempLimit": {
+        "name": "Hc1SummerTempLimit",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2ActualFlowTempDesired": {
+        "name": "Hc2ActualFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2AutoOffMode": {
+        "name": "Hc2AutoOffMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2CircuitType": {
+        "name": "Hc2CircuitType",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2ExcessTemp": {
+        "name": "Hc2ExcessTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2FlowTemp": {
+        "name": "Hc2FlowTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2HeatCurve": {
+        "name": "Hc2HeatCurve",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2HeatCurveAdaption": {
+        "name": "Hc2HeatCurveAdaption",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2MaxFlowTempDesired": {
+        "name": "Hc2MaxFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2MinFlowTempDesired": {
+        "name": "Hc2MinFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2MixerMovement": {
+        "name": "Hc2MixerMovement",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2PumpStatus": {
+        "name": "Hc2PumpStatus",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2RoomTempSwitchOn": {
+        "name": "Hc2RoomTempSwitchOn",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2Status": {
+        "name": "Hc2Status",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc2SummerTempLimit": {
+        "name": "Hc2SummerTempLimit",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3ActualFlowTempDesired": {
+        "name": "Hc3ActualFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3AutoOffMode": {
+        "name": "Hc3AutoOffMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3CircuitType": {
+        "name": "Hc3CircuitType",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3ExcessTemp": {
+        "name": "Hc3ExcessTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3FlowTemp": {
+        "name": "Hc3FlowTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3HeatCurve": {
+        "name": "Hc3HeatCurve",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3HeatCurveAdaption": {
+        "name": "Hc3HeatCurveAdaption",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3MaxFlowTempDesired": {
+        "name": "Hc3MaxFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3MinFlowTempDesired": {
+        "name": "Hc3MinFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3MixerMovement": {
+        "name": "Hc3MixerMovement",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3PumpStatus": {
+        "name": "Hc3PumpStatus",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3RoomTempSwitchOn": {
+        "name": "Hc3RoomTempSwitchOn",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3Status": {
+        "name": "Hc3Status",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hc3SummerTempLimit": {
+        "name": "Hc3SummerTempLimit",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HcStorageTempBottom": {
+        "name": "HcStorageTempBottom",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HcStorageTempTop": {
+        "name": "HcStorageTempTop",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HolidayEndPeriod": {
+        "name": "HolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HolidayStartPeriod": {
+        "name": "HolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HolidayTemp": {
+        "name": "HolidayTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcBankHolidayEndPeriod": {
+        "name": "HwcBankHolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcBankHolidayStartPeriod": {
+        "name": "HwcBankHolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcFlowTemp": {
+        "name": "HwcFlowTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcHolidayEndPeriod": {
+        "name": "HwcHolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcHolidayStartPeriod": {
+        "name": "HwcHolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcLockTime": {
+        "name": "HwcLockTime",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcMaxFlowTempDesired": {
+        "name": "HwcMaxFlowTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcOpMode": {
+        "name": "HwcOpMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcParallelLoading": {
+        "name": "HwcParallelLoading",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcSFMode": {
+        "name": "HwcSFMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcStorageTemp": {
+        "name": "HwcStorageTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcStorageTempBottom": {
+        "name": "HwcStorageTempBottom",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcStorageTempTop": {
+        "name": "HwcStorageTempTop",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HwcTempDesired": {
+        "name": "HwcTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "hwcTimer.Friday": {
+        "name": "hwcTimer.Friday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "hwcTimer.Monday": {
+        "name": "hwcTimer.Monday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "hwcTimer.Saturday": {
+        "name": "hwcTimer.Saturday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "hwcTimer.Sunday": {
+        "name": "hwcTimer.Sunday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "hwcTimer.Thursday": {
+        "name": "hwcTimer.Thursday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "hwcTimer.Tuesday": {
+        "name": "hwcTimer.Tuesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "hwcTimer.Wednesday": {
+        "name": "hwcTimer.Wednesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HydraulicScheme": {
+        "name": "HydraulicScheme",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Installer1": {
+        "name": "Installer1",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Installer2": {
+        "name": "Installer2",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "KeyCodeforConfigMenu": {
+        "name": "KeyCodeforConfigMenu",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "MaintenanceDate": {
+        "name": "MaintenanceDate",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "MaintenanceDue": {
+        "name": "MaintenanceDue",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "MaxCylinderChargeTime": {
+        "name": "MaxCylinderChargeTime",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "MaxRoomHumidity": {
+        "name": "MaxRoomHumidity",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "MultiRelaySetting": {
+        "name": "MultiRelaySetting",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "noiseReductionTimer.Friday": {
+        "name": "noiseReductionTimer.Friday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "noiseReductionTimer.Monday": {
+        "name": "noiseReductionTimer.Monday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "noiseReductionTimer.Saturday": {
+        "name": "noiseReductionTimer.Saturday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "noiseReductionTimer.Sunday": {
+        "name": "noiseReductionTimer.Sunday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "noiseReductionTimer.Thursday": {
+        "name": "noiseReductionTimer.Thursday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "noiseReductionTimer.Tuesday": {
+        "name": "noiseReductionTimer.Tuesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "noiseReductionTimer.Wednesday": {
+        "name": "noiseReductionTimer.Wednesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "OpMode": {
+        "name": "OpMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "OpModeEffect": {
+        "name": "OpModeEffect",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "OutsideTempAvg": {
+        "name": "OutsideTempAvg",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PhoneNumber1": {
+        "name": "PhoneNumber1",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PhoneNumber2": {
+        "name": "PhoneNumber2",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrEnergySum": {
+        "name": "PrEnergySum",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrEnergySumHc": {
+        "name": "PrEnergySumHc",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrEnergySumHcLastMonth": {
+        "name": "PrEnergySumHcLastMonth",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrEnergySumHcThisMonth": {
+        "name": "PrEnergySumHcThisMonth",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrEnergySumHwc": {
+        "name": "PrEnergySumHwc",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrEnergySumHwcLastMonth": {
+        "name": "PrEnergySumHwcLastMonth",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrEnergySumHwcThisMonth": {
+        "name": "PrEnergySumHwcThisMonth",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrFuelSum": {
+        "name": "PrFuelSum",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrFuelSumHc": {
+        "name": "PrFuelSumHc",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrFuelSumHcLastMonth": {
+        "name": "PrFuelSumHcLastMonth",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrFuelSumHcThisMonth": {
+        "name": "PrFuelSumHcThisMonth",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrFuelSumHwc": {
+        "name": "PrFuelSumHwc",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrFuelSumHwcLastMonth": {
+        "name": "PrFuelSumHwcLastMonth",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PrFuelSumHwcThisMonth": {
+        "name": "PrFuelSumHwcThisMonth",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "PumpAdditionalTime": {
+        "name": "PumpAdditionalTime",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "SFMode": {
+        "name": "SFMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "SolarYieldTotal": {
+        "name": "SolarYieldTotal",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "SystemFlowTemp": {
+        "name": "SystemFlowTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "tariffTimer.Friday": {
+        "name": "tariffTimer.Friday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "tariffTimer.Monday": {
+        "name": "tariffTimer.Monday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "tariffTimer.Saturday": {
+        "name": "tariffTimer.Saturday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "tariffTimer.Sunday": {
+        "name": "tariffTimer.Sunday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "tariffTimer.Thursday": {
+        "name": "tariffTimer.Thursday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "tariffTimer.Tuesday": {
+        "name": "tariffTimer.Tuesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "tariffTimer.Wednesday": {
+        "name": "tariffTimer.Wednesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Time": {
+        "name": "Time",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ventilationTimer.Friday": {
+        "name": "ventilationTimer.Friday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ventilationTimer.Monday": {
+        "name": "ventilationTimer.Monday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ventilationTimer.Saturday": {
+        "name": "ventilationTimer.Saturday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ventilationTimer.Sunday": {
+        "name": "ventilationTimer.Sunday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ventilationTimer.Thursday": {
+        "name": "ventilationTimer.Thursday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ventilationTimer.Tuesday": {
+        "name": "ventilationTimer.Tuesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ventilationTimer.Wednesday": {
+        "name": "ventilationTimer.Wednesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "WaterPressure": {
+        "name": "WaterPressure",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldTotal": {
+        "name": "YieldTotal",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1ActualRoomTempDesired": {
+        "name": "z1ActualRoomTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1BankHolidayEndPeriod": {
+        "name": "z1BankHolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1BankHolidayStartPeriod": {
+        "name": "z1BankHolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1CoolingTemp": {
+        "name": "z1CoolingTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1CoolingTimer.Friday": {
+        "name": "z1CoolingTimer.Friday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1CoolingTimer.Monday": {
+        "name": "z1CoolingTimer.Monday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1CoolingTimer.Saturday": {
+        "name": "z1CoolingTimer.Saturday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1CoolingTimer.Sunday": {
+        "name": "z1CoolingTimer.Sunday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1CoolingTimer.Thursday": {
+        "name": "z1CoolingTimer.Thursday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1CoolingTimer.Tuesday": {
+        "name": "z1CoolingTimer.Tuesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1CoolingTimer.Wednesday": {
+        "name": "z1CoolingTimer.Wednesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1DayTemp": {
+        "name": "z1DayTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1HolidayEndPeriod": {
+        "name": "z1HolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1HolidayStartPeriod": {
+        "name": "z1HolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1HolidayTemp": {
+        "name": "z1HolidayTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Name1": {
+        "name": "z1Name1",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Name2": {
+        "name": "z1Name2",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1NightTemp": {
+        "name": "z1NightTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1OpMode": {
+        "name": "z1OpMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1QuickVetoTemp": {
+        "name": "z1QuickVetoTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1RoomTemp": {
+        "name": "z1RoomTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1RoomZoneMapping": {
+        "name": "z1RoomZoneMapping",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1SFMode": {
+        "name": "z1SFMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Shortname": {
+        "name": "z1Shortname",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Timer.Friday": {
+        "name": "z1Timer.Friday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Timer.Monday": {
+        "name": "z1Timer.Monday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Timer.Saturday": {
+        "name": "z1Timer.Saturday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Timer.Sunday": {
+        "name": "z1Timer.Sunday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Timer.Thursday": {
+        "name": "z1Timer.Thursday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Timer.Tuesday": {
+        "name": "z1Timer.Tuesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1Timer.Wednesday": {
+        "name": "z1Timer.Wednesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z1ValveStatus": {
+        "name": "z1ValveStatus",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2ActualRoomTempDesired": {
+        "name": "z2ActualRoomTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2BankHolidayEndPeriod": {
+        "name": "z2BankHolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2BankHolidayStartPeriod": {
+        "name": "z2BankHolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2CoolingTemp": {
+        "name": "z2CoolingTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2CoolingTimer.Friday": {
+        "name": "z2CoolingTimer.Friday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2CoolingTimer.Monday": {
+        "name": "z2CoolingTimer.Monday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2CoolingTimer.Saturday": {
+        "name": "z2CoolingTimer.Saturday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2CoolingTimer.Sunday": {
+        "name": "z2CoolingTimer.Sunday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2CoolingTimer.Thursday": {
+        "name": "z2CoolingTimer.Thursday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2CoolingTimer.Tuesday": {
+        "name": "z2CoolingTimer.Tuesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2CoolingTimer.Wednesday": {
+        "name": "z2CoolingTimer.Wednesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2DayTemp": {
+        "name": "z2DayTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2HolidayEndPeriod": {
+        "name": "z2HolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2HolidayStartPeriod": {
+        "name": "z2HolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2HolidayTemp": {
+        "name": "z2HolidayTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Name1": {
+        "name": "z2Name1",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Name2": {
+        "name": "z2Name2",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2NightTemp": {
+        "name": "z2NightTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2OpMode": {
+        "name": "z2OpMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2QuickVetoTemp": {
+        "name": "z2QuickVetoTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2RoomTemp": {
+        "name": "z2RoomTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2RoomZoneMapping": {
+        "name": "z2RoomZoneMapping",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2SFMode": {
+        "name": "z2SFMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Shortname": {
+        "name": "z2Shortname",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Timer.Friday": {
+        "name": "z2Timer.Friday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Timer.Monday": {
+        "name": "z2Timer.Monday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Timer.Saturday": {
+        "name": "z2Timer.Saturday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Timer.Sunday": {
+        "name": "z2Timer.Sunday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Timer.Thursday": {
+        "name": "z2Timer.Thursday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Timer.Tuesday": {
+        "name": "z2Timer.Tuesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2Timer.Wednesday": {
+        "name": "z2Timer.Wednesday",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z2ValveStatus": {
+        "name": "z2ValveStatus",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3ActualRoomTempDesired": {
+        "name": "z3ActualRoomTempDesired",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3BankHolidayEndPeriod": {
+        "name": "z3BankHolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3BankHolidayStartPeriod": {
+        "name": "z3BankHolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3DayTemp": {
+        "name": "z3DayTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3HolidayEndPeriod": {
+        "name": "z3HolidayEndPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3HolidayStartPeriod": {
+        "name": "z3HolidayStartPeriod",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3HolidayTemp": {
+        "name": "z3HolidayTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3Name1": {
+        "name": "z3Name1",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3Name2": {
+        "name": "z3Name2",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3NightTemp": {
+        "name": "z3NightTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3OpMode": {
+        "name": "z3OpMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3QuickVetoTemp": {
+        "name": "z3QuickVetoTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3RoomTemp": {
+        "name": "z3RoomTemp",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3RoomZoneMapping": {
+        "name": "z3RoomZoneMapping",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3SFMode": {
+        "name": "z3SFMode",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3Shortname": {
+        "name": "z3Shortname",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "z3ValveStatus": {
+        "name": "z3ValveStatus",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      }
+    }
+  },
+  "broadcast": {
+    "messages": {
+      "datetime": {
+        "name": "datetime",
+        "passive": true,
+        "write": false,
+        "lastup": 0
+      },
+      "error": {
+        "name": "error",
+        "passive": true,
+        "write": false,
+        "lastup": 0
+      },
+      "hwcStatus": {
+        "name": "hwcStatus",
+        "passive": true,
+        "write": false,
+        "lastup": 0
+      },
+      "id-u": {
+        "name": "id",
+        "passive": true,
+        "write": false,
+        "lastup": 0
+      },
+      "load": {
+        "name": "load",
+        "passive": true,
+        "write": false,
+        "lastup": 0
+      },
+      "outsidetemp": {
+        "name": "outsidetemp",
+        "passive": true,
+        "write": false,
+        "lastup": 1637833523,
+        "zz": 254,
+        "fields": {
+          "temp2": { "value": 7.875 }
+        }
+      },
+      "signoflife": {
+        "name": "signoflife",
+        "passive": true,
+        "write": false,
+        "lastup": 0
+      },
+      "vdatetime": {
+        "name": "vdatetime",
+        "passive": true,
+        "write": false,
+        "lastup": 1637833523,
+        "zz": 254,
+        "fields": {
+          "time": { "value": "10:44:39" },
+          "date": { "value": "25.11.2021" }
+        }
+      }
+    }
+  },
+  "hmu": {
+    "messages": {
+      "ConsumptionThisYear10": {
+        "name": "ConsumptionThisYear10",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear11": {
+        "name": "ConsumptionThisYear11",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear12": {
+        "name": "ConsumptionThisYear12",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear1": {
+        "name": "ConsumptionThisYear1",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear2": {
+        "name": "ConsumptionThisYear2",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear3": {
+        "name": "ConsumptionThisYear3",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear4": {
+        "name": "ConsumptionThisYear4",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear5": {
+        "name": "ConsumptionThisYear5",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear6": {
+        "name": "ConsumptionThisYear6",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear7": {
+        "name": "ConsumptionThisYear7",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear8": {
+        "name": "ConsumptionThisYear8",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionThisYear9": {
+        "name": "ConsumptionThisYear9",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "ConsumptionTotal": {
+        "name": "ConsumptionTotal",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "currenterror": {
+        "name": "currenterror",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "DateTime": {
+        "name": "DateTime",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "EnergyCool": {
+        "name": "EnergyCool",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "EnergyHc": {
+        "name": "EnergyHc",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "errorhistory": {
+        "name": "errorhistory",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Hours": {
+        "name": "Hours",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HoursCool": {
+        "name": "HoursCool",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "HoursHc": {
+        "name": "HoursHc",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "SetMode": {
+        "name": "SetMode",
+        "passive": true,
+        "write": true,
+        "lastup": 1637833531,
+        "zz": 8,
+        "fields": {
+          "hcmode": { "value": "auto" },
+          "flowtempdesired": { "value": 25.5 },
+          "hwctempdesired": { "value": null },
+          "hwcflowtempdesired": { "value": null },
+          "disablehc": { "value": 0 },
+          "disablehwctapping": { "value": 1 },
+          "disablehwcload": { "value": 1 },
+          "remoteControlHcPump": { "value": 0 },
+          "releaseBackup": { "value": 0 },
+          "releaseCooling": { "value": 0 }
+        }
+      },
+      "State": {
+        "name": "State",
+        "passive": false,
+        "write": false,
+        "lastup": 1637833536,
+        "zz": 8,
+        "fields": {
+          "0": {
+            "name": "energy",
+            "value": 0
+          },
+          "1": {
+            "name": "energy",
+            "value": 109
+          },
+          "2": {
+            "name": "onoff",
+            "value": 193
+          },
+          "3": {
+            "name": "state",
+            "value": 8
+          }
+        }
+      },
+      "Status01": {
+        "name": "Status01",
+        "passive": false,
+        "write": false,
+        "lastup": 1637833531,
+        "zz": 8,
+        "fields": {
+          "0": {
+            "name": "temp1",
+            "value": 25.5
+          },
+          "1": {
+            "name": "temp1",
+            "value": 23.0
+          },
+          "2": {
+            "name": "temp2",
+            "value": null
+          },
+          "3": {
+            "name": "temp1",
+            "value": null
+          },
+          "4": {
+            "name": "temp1",
+            "value": null
+          },
+          "5": {
+            "name": "pumpstate",
+            "value": "on"
+          }
+        }
+      },
+      "Status02": {
+        "name": "Status02",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Status16": {
+        "name": "Status16",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "Status": {
+        "name": "Status",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "StatusCirPump": {
+        "name": "StatusCirPump",
+        "passive": true,
+        "write": true,
+        "lastup": 1637833344,
+        "zz": 8,
+        "fields": {
+          "0": {
+            "name": "",
+            "value": "off"
+          }
+        }
+      },
+      "YieldThisYear10": {
+        "name": "YieldThisYear10",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear11": {
+        "name": "YieldThisYear11",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear12": {
+        "name": "YieldThisYear12",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear1": {
+        "name": "YieldThisYear1",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear2": {
+        "name": "YieldThisYear2",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear3": {
+        "name": "YieldThisYear3",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear4": {
+        "name": "YieldThisYear4",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear5": {
+        "name": "YieldThisYear5",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear6": {
+        "name": "YieldThisYear6",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear7": {
+        "name": "YieldThisYear7",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear8": {
+        "name": "YieldThisYear8",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldThisYear9": {
+        "name": "YieldThisYear9",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      },
+      "YieldTotal": {
+        "name": "YieldTotal",
+        "passive": false,
+        "write": false,
+        "lastup": 0
+      }
+    }
+  },
+  "scan.08": {
+    "messages": {
+      "": {
+        "name": "",
+        "passive": false,
+        "write": false,
+        "lastup": 1637832576,
+        "zz": 8,
+        "fields": {
+          "MF": { "value": "Vaillant" },
+          "ID": { "value": "HMU00" },
+          "SW": { "value": "0606" },
+          "HW": { "value": "5103" }
+        }
+      },
+      "id": {
+        "name": "id",
+        "passive": false,
+        "write": false,
+        "lastup": 1637832578,
+        "zz": 8,
+        "fields": {
+          "prefix": { "value": "21" },
+          "year": { "value": "20" },
+          "week": { "value": "38" },
+          "product": { "value": "0010031658" },
+          "supplier": { "value": "1610" },
+          "counter": { "value": "005007" },
+          "suffix": { "value": "N7" }
+        }
+      }
+    }
+  },
+  "scan.15": {
+    "messages": {
+      "": {
+        "name": "",
+        "passive": false,
+        "write": false,
+        "lastup": 1637832580,
+        "zz": 21,
+        "fields": {
+          "MF": { "value": "Vaillant" },
+          "ID": { "value": "72000" },
+          "SW": { "value": "0122" },
+          "HW": { "value": "7703" }
+        }
+      },
+      "id": {
+        "name": "id",
+        "passive": false,
+        "write": false,
+        "lastup": 1637832580,
+        "zz": 21,
+        "fields": {
+          "prefix": { "value": "21" },
+          "year": { "value": "21" },
+          "week": { "value": "09" },
+          "product": { "value": "0020260913" },
+          "supplier": { "value": "0953" },
+          "counter": { "value": "009657" },
+          "suffix": { "value": "N2" }
+        }
+      }
+    }
+  },
+  "scan.76": {
+    "messages": {
+      "": {
+        "name": "",
+        "passive": false,
+        "write": false,
+        "lastup": 1637832583,
+        "zz": 118,
+        "fields": {
+          "MF": { "value": "Vaillant" },
+          "ID": { "value": "VWZIO" },
+          "SW": { "value": "0202" },
+          "HW": { "value": "0103" }
+        }
+      },
+      "id": {
+        "name": "id",
+        "passive": false,
+        "write": false,
+        "lastup": 1637832584,
+        "zz": 118,
+        "fields": {
+          "prefix": { "value": "21" },
+          "year": { "value": "20" },
+          "week": { "value": "40" },
+          "product": { "value": "0010031645" },
+          "supplier": { "value": "0082" },
+          "counter": { "value": "005367" },
+          "suffix": { "value": "N1" }
+        }
+      }
+    }
+  },
+  "global": {
+    "version": "21.3.v21.3",
+    "updatecheck": "version 21.2 available",
+    "signal": true,
+    "symbolrate": 42,
+    "maxsymbolrate": 137,
+    "minarbitrationmicros": 373,
+    "maxarbitrationmicros": 468,
+    "minsymbollatency": 5,
+    "maxsymbollatency": 6,
+    "qq": 49,
+    "reconnects": 0,
+    "masters": 4,
+    "messages": 483,
+    "lastup": 1637833536
+  }
+}
