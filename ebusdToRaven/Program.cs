@@ -30,21 +30,26 @@ namespace ebusdToRaven
             doc.Medium = "ebus";
             session.Store(doc, documentId);
 
-            var appendSerie = (JsonNode record, string name, string childpath)
+            var appendSerie = (JsonNode record, string name, string childpath, string tag)
            =>
             {
                 DateTime timestamp = GetTimestamp(record);
                 double value = (double)record.GetChild(childpath);
                 Console.WriteLine($"{timestamp}\t {name}:\t {value}");
                 session.TimeSeriesFor(doc, name)
-                  .Append(timestamp, value, "°C");
+                  .Append(timestamp, value, tag);
             };
 
 
-            appendSerie(parsed.GetChild("broadcast.messages.outsidetemp"), "OutsideTemp", "fields.temp2.value");
-            appendSerie(parsed.GetChild("hmu.messages.Status01"), "FlowTemperature", "fields.0.value");
-            appendSerie(parsed.GetChild("hmu.messages.Status01"), "ReturnTemperature", "fields.1.value");
-            appendSerie(parsed.GetChild("hmu.messages.SetMode"), "DesiredFlowTemperature", "fields.flowtempdesired.value");
+            appendSerie(parsed.GetChild("broadcast.messages.outsidetemp"), "OutsideTemp", "fields.temp2.value", "°C");
+            appendSerie(parsed.GetChild("hmu.messages.Status01"), "FlowTemperature", "fields.0.value", "°C");
+            appendSerie(parsed.GetChild("hmu.messages.Status01"), "ReturnTemperature", "fields.1.value", "°C");
+            appendSerie(parsed.GetChild("hmu.messages.SetMode"), "DesiredFlowTemperature", "fields.flowtempdesired.value", "°C");
+
+            appendSerie(parsed.GetChild("hmu.messages.State"), "Energy0", "fields.0.value", null);
+            appendSerie(parsed.GetChild("hmu.messages.State"), "Energy1", "fields.1.value", null);
+            appendSerie(parsed.GetChild("hmu.messages.State"), "onoff", "fields.2.value", null);
+            appendSerie(parsed.GetChild("hmu.messages.State"), "State", "fields.3.value", null);
 
             session.SaveChanges();
         }
