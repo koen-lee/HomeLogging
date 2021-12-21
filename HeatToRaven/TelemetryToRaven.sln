@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeatToRaven", "HeatToRaven.csproj", "{FF0ABCE5-E97D-4162-B5BC-E1B08014E05F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HeatToRaven", "HeatToRaven.csproj", "{FF0ABCE5-E97D-4162-B5BC-E1B08014E05F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ebusdToRaven", "..\ebusdToRaven\ebusdToRaven.csproj", "{DF09528E-2AFF-4671-8634-A8461BEF95B3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ebusdToRaven", "..\ebusdToRaven\ebusdToRaven.csproj", "{DF09528E-2AFF-4671-8634-A8461BEF95B3}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GoodweToRaven", "..\GoodweToRaven\GoodweToRaven.csproj", "{16E5D916-A088-4086-B003-BC823168EFE4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{DF09528E-2AFF-4671-8634-A8461BEF95B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DF09528E-2AFF-4671-8634-A8461BEF95B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DF09528E-2AFF-4671-8634-A8461BEF95B3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{16E5D916-A088-4086-B003-BC823168EFE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{16E5D916-A088-4086-B003-BC823168EFE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{16E5D916-A088-4086-B003-BC823168EFE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{16E5D916-A088-4086-B003-BC823168EFE4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
