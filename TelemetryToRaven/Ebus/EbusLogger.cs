@@ -1,36 +1,24 @@
 ﻿using Raven.Client.Documents;
 using System.Text.Json.Nodes;
 
-namespace ebusdToRaven
+namespace TelemetryToRaven
 {
-    public static class Program
+    public class EbusLogger : LoggerService
     {
-        public static void Main(string serverurl = "http://energylogger:8080", string database = "Eiland17Logging")
+        public EbusLogger(ILogger<EbusLogger> logger, IDocumentStore database) : base(logger, database)
         {
-            Console.WriteLine("Awaiting ebusd json input on stdin");
-            
-
-            Persist(serverurl, database, parsed);
-            Console.WriteLine("Done");
         }
 
-        private static void Persist(string serverurl, string database, JsonNode parsed)
+        protected override async Task DoWork(CancellationToken cancellationToken)
         {
-
-            Console.WriteLine("Opening store");
-            var store = new DocumentStore()
-            {
-                Database = database,
-                Urls = new[] { serverurl }
-            };
-            store.Initialize();
-            var session = store.OpenSession();
+            JsonNode parsed = GetEbusJson();
+            var session = store.OpenAsyncSession();
             string documentId = "meters/" + "ebus";
-            var doc = session.Load<Meter>(documentId);
+            var doc = await session.LoadAsync<Meter>(documentId);
             if (doc == null) doc = new Meter();
             doc.VendorInfo = "Vaillant";
             doc.Medium = "ebus";
-            session.Store(doc, documentId);
+            await session.StoreAsync(doc, documentId);
 
             Console.WriteLine("Adding telemetry");
             var appendSerie = (string path, string name, string childpath, string tag)
@@ -38,9 +26,9 @@ namespace ebusdToRaven
             {
                 try
                 {
-                    JsonNode record = parsed.GetChild(path);
+                    JsonNode record = GetChild(parsed, path);
                     DateTime timestamp = GetTimestamp(record);
-                    double value = (double)record.GetChild(childpath);
+                    double value = (double)GetChild(record, childpath);
                     Console.WriteLine($"{timestamp}\t {name}:\t {value}");
                     session.TimeSeriesFor(doc, name)
                       .Append(timestamp, value, tag);
@@ -64,8 +52,25 @@ namespace ebusdToRaven
             appendSerie("720.messages.z1RoomTemp", "RoomTemperature", "fields.tempv.value", "°C");
             appendSerie("720.messages.z1ActualRoomTempDesired", "DesiredRoomTemperature", "fields.tempv.value", "°C");
 
-            session.SaveChanges();
+            await session.SaveChangesAsync();
         }
 
+        private JsonNode GetEbusJson()
+        {
+            return JsonNode.Parse(RunScript("ebus.sh"));
+        }
+
+        public static JsonNode GetChild(JsonNode node, string path)
+        {
+            var splitter = path.IndexOf(".");
+            if (splitter > 0)
+                return GetChild(node[path.Substring(0, splitter)], path.Substring(splitter + 1));
+            return node[path];
+        }
+
+        private static DateTime GetTimestamp(JsonNode someJson)
+        {
+            return DateTime.UnixEpoch.AddSeconds((double)someJson["lastup"]);
+        }
     }
 }
