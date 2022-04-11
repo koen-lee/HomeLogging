@@ -1,0 +1,16 @@
+﻿[Unit]
+Description=Home Logger
+Wants=network.target
+After=syslog.target network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/usr/share/telemetry/
+EnvironmentFile=/etc/telemetry/telemetryservice.conf
+ExecStart="/usr/share/telemetry/telemetryservice"
+Restart=on-failure
+RestartSec=10
+KillMode=process
+
+[Install]
+WantedBy=multi-user.target

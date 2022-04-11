@@ -1,7 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk.Worker">
-
+﻿<Project Sdk="Microsoft.NET.Sdk.Worker">
   <PropertyGroup>
     <TargetFramework>net6.0</TargetFramework>
+	<AssemblyName>telemetryservice</AssemblyName>
+	<GenerateDocumentationFile>false</GenerateDocumentationFile>
+	<runtimeIdentifiers>linux-arm</runtimeIdentifiers>
+	<Authors>KPvL</Authors>
+	<Company></Company>
+	<Product>Local Telemetry To RavenDB</Product>
+	<Version>1.0</Version>
+	<OutputType>Exe</OutputType>
+	<InstallService>true</InstallService>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-TelemetryToRaven-A1067D0E-67C3-4C10-B8EC-8DDECC3AF077</UserSecretsId>
@@ -17,5 +25,11 @@
     <None Update="Mbus\mbus_sample.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+	<Content Update="Deploy\telemetryservice.service" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="644">
+		<LinuxPath>/etc/systemd/system/telemetryservice.service</LinuxPath>
+	</Content>
+	<Content Update="Deploy\telemetryservice.conf" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="644">
+		<LinuxPath>/etc/telemetry/telemetryservice.conf</LinuxPath>
+	</Content>
   </ItemGroup>
 </Project>
