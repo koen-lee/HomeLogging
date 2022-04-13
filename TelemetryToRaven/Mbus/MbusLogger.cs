@@ -1,11 +1,12 @@
 ﻿using Raven.Client.Documents;
 using System.Xml.Serialization;
+using TelemetryToRaven.Sdm;
 
 namespace TelemetryToRaven.Mbus
 {
     public class MbusLogger : LoggerService
     {
-        public MbusLogger(ILogger<MbusLogger> logger, IDocumentStore database) : base(logger, database)
+        public MbusLogger(ILogger<SdmLogger> logger, IDocumentStore database) : base(logger, database)
         {
         }
 
@@ -20,7 +21,7 @@ namespace TelemetryToRaven.Mbus
 
             var records = parsed.Records.ToDictionary(x => x.Id);
 
-            using var session = store.OpenAsyncSession();
+            using var session = _store.OpenAsyncSession();
             string documentId = "meters/" + parsed.SlaveInformation.Id;
             var doc = await session.LoadAsync<Meter>(documentId);
             if (doc == null) doc = new Meter();

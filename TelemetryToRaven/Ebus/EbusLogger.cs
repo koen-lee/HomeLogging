@@ -12,7 +12,7 @@ namespace TelemetryToRaven
         protected override async Task DoWork(CancellationToken cancellationToken)
         {
             JsonNode parsed = GetEbusJson();
-            var session = store.OpenAsyncSession();
+            var session = _store.OpenAsyncSession();
             string documentId = "meters/" + "ebus";
             var doc = await session.LoadAsync<Meter>(documentId);
             if (doc == null) doc = new Meter();

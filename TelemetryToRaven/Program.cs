@@ -1,7 +1,9 @@
 using Raven.Client.Documents;
 using TelemetryToRaven;
 using TelemetryToRaven.Goodwe;
-using TelemetryToRaven.Mbus;
+using TelemetryToRaven.P1;
+using TelemetryToRaven.Sdm;
+
 namespace TelemetryToRaven
 {
     public static class Program
@@ -13,9 +15,11 @@ namespace TelemetryToRaven
             IHost host = Host.CreateDefaultBuilder()
                             .ConfigureServices(services =>
                             {
-                                services.AddHostedService<EbusLogger>();
-                                services.AddHostedService<MbusLogger>();
+                                //services.AddHostedService<EbusLogger>();
+                                //services.AddHostedService<MbusLogger>();
                                 services.AddHostedService<GoodweLogger>();
+                                services.AddHostedService<SdmLogger>();
+                                services.AddHostedService<P1Logger>();
                                 services.AddSingleton(CreateDocumentStore(serverurl, database));
                             })
                             .Build();

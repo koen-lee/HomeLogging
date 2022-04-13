@@ -34,7 +34,7 @@ namespace TelemetryToRaven.Goodwe
 
         private async Task PostToRavendb(InverterTelemetry inverterStatus, Inverter inverter)
         {
-            var session = store.OpenAsyncSession();
+            var session = _store.OpenAsyncSession();
             string documentId = "meters/" + inverter.Mac;
             var doc = await session.LoadAsync<Meter>(documentId);
             if (doc == null) doc = new Meter();

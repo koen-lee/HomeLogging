@@ -6,12 +6,12 @@ namespace TelemetryToRaven
     public abstract class LoggerService : BackgroundService
     {
         protected readonly ILogger _logger;
-        protected readonly IDocumentStore store;
+        protected readonly IDocumentStore _store;
 
         public LoggerService(ILogger logger, IDocumentStore database)
         {
             _logger = logger;
-            store = database;
+            _store = database;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
