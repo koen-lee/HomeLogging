@@ -1,4 +1,8 @@
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Raven.Client.Documents;
+using System;
+using System.Threading.Tasks;
 using TelemetryToRaven;
 using TelemetryToRaven.Goodwe;
 using TelemetryToRaven.P1;
@@ -9,7 +13,7 @@ namespace TelemetryToRaven
     public static class Program
     {
         public static async Task Main(
-           string? serverurl = null, string? database = null)
+           string serverurl = null, string database = null)
         {
             Console.WriteLine("Hello");
             serverurl ??= Environment.GetEnvironmentVariable("RAVENDB_URL") ?? "http://localhost:8080";

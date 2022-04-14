@@ -1,4 +1,9 @@
-﻿using Raven.Client.Documents;
+﻿using Microsoft.Extensions.Logging;
+using Raven.Client.Documents;
+using System.IO;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Xml.Serialization;
 using TelemetryToRaven.Sdm;
 

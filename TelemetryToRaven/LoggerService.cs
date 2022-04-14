@@ -1,5 +1,11 @@
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TelemetryToRaven
 {
