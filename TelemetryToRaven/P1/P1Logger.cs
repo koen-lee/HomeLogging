@@ -27,6 +27,7 @@ namespace TelemetryToRaven.P1
             {
                 serial.ReadTimeout = 1500; // more than a second
                 serial.BaudRate = 115200;
+                serial.Open();
                 var data = new StringBuilder();
                 string line;
                 // Wait for start
@@ -42,11 +43,10 @@ namespace TelemetryToRaven.P1
                     data.AppendLine(line);
                 }
                 _logger.LogDebug($"Got telegram of length {data.Length}");
-                if (_logger.IsEnabled(LogLevel.Trace))
-                {
-                    _logger.LogTrace(data.ToString());
-                }
-                var telegram = parser.Parse(data.ToString());
+
+                _logger.LogDebug(data.ToString());
+
+                var telegram = parser.Parse(data.Replace("\0", "").ToString());
                 await PostToRavendb(telegram);
             }
         }
@@ -109,7 +109,7 @@ namespace TelemetryToRaven.P1
                 (double)telegram.EnergyDeliveredTariff2.Value,
                 (double)telegram.EnergyReturnedTariff1.Value,
                 (double)telegram.EnergyReturnedTariff2.Value,
-            }, telegram.CurrentL1.Unit.ToString());
+            }, telegram.EnergyDeliveredTariff1.Unit.ToString());
 
             await session.SaveChangesAsync();
 
