@@ -9,17 +9,19 @@ namespace TelemetryToRaven
     public static class Program
     {
         public static async Task Main(
-           string serverurl = "http://energylogger:8080", string database = "Eiland17Logging")
+           string? serverurl = null, string? database = null)
         {
             Console.WriteLine("Hello");
+            serverurl ??= Environment.GetEnvironmentVariable("RAVENDB_URL") ?? "http://localhost:8080";
+            database ??= Environment.GetEnvironmentVariable("RAVENDB_DATABASE") ?? "telemetry";
             IHost host = Host.CreateDefaultBuilder()
                             .ConfigureServices(services =>
                             {
                                 //services.AddHostedService<EbusLogger>();
                                 //services.AddHostedService<MbusLogger>();
                                 services.AddHostedService<GoodweLogger>();
-                                services.AddHostedService<SdmLogger>();
                                 services.AddHostedService<P1Logger>();
+                                //services.AddHostedService<SdmLogger>();
                                 services.AddSingleton(CreateDocumentStore(serverurl, database));
                             })
                             .Build();

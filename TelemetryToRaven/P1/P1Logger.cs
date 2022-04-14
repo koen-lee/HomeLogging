@@ -1,6 +1,8 @@
 ﻿using DSMRParser;
+using DSMRParser.Models;
 using Raven.Client.Documents;
 using System.IO.Ports;
+using System.Text;
 
 namespace TelemetryToRaven.P1
 {
@@ -20,11 +22,95 @@ namespace TelemetryToRaven.P1
             using (var serial = new SerialPort(port))
             {
                 serial.ReadTimeout = 1500; // more than a second
-
-                var telegram = parser.Parse(serial.ReadLine());
-                throw new NotImplementedException();
-
+                serial.BaudRate = 115200;
+                var data = new StringBuilder();
+                string line;
+                // Wait for start
+                do
+                {
+                    line = serial.ReadLine();
+                } while (line == null || !line.StartsWith("/"));
+                data.AppendLine(line);
+                // Wait for end
+                while (line != null && !line.StartsWith("!"))
+                {
+                    line = serial.ReadLine();
+                    data.AppendLine(line);
+                }
+                _logger.LogDebug($"Got telegram of length {data.Length}");
+                if (_logger.IsEnabled(LogLevel.Trace))
+                {
+                    _logger.LogTrace(data.ToString());
+                }
+                var telegram = parser.Parse(data.ToString());
+                await PostToRavendb(telegram);
             }
         }
+
+
+        private async Task PostToRavendb(Telegram telegram)
+        {
+            var session = _store.OpenAsyncSession();
+            string documentId = "meters/" + telegram.Identification;
+            var doc = await session.LoadAsync<Meter>(documentId);
+            if (doc == null)
+            {
+                doc = new Meter();
+                await _store.TimeSeries.RegisterAsync<Meter>("EnergyCounters", new[] {
+                    "EnergyDeliveredTariff1",
+                    "EnergyDeliveredTariff2",
+                    "EnergyReturnedTariff1",
+                    "EnergyReturnedTariff2",
+                });
+                await _store.TimeSeries.RegisterAsync<Meter>("PowerPerPhase", new[] {
+                    "Power L1",
+                    "Power L2",
+                    "Power L3",
+                });
+
+                await _store.TimeSeries.RegisterAsync<Meter>("VacPerPhase", new[] {
+                    "Voltage L1",
+                    "Voltage L2",
+                    "Voltage L3",
+                }); ;
+
+                await _store.TimeSeries.RegisterAsync<Meter>("IacPerPhase", new[] {
+                    "Current L1",
+                    "Current L2",
+                    "Current L3",
+                });
+            }
+            doc.VendorInfo = "DSMR5";
+            doc.Medium = "Electricity";
+            await session.StoreAsync(doc, documentId);
+            var timestamp = (telegram.TimeStamp ?? DateTimeOffset.UtcNow).UtcDateTime;
+            session.TimeSeriesFor(doc, "Power").Append(timestamp, (double)(telegram.PowerDelivered.Value - telegram.PowerReturned.Value), telegram.PowerDelivered.Unit.ToString());
+            session.TimeSeriesFor(doc, "PowerPerPhase").Append(timestamp, new[] {
+                (double)(telegram.PowerDeliveredL1.Value - telegram.PowerReturnedL1.Value),
+                (double)(telegram.PowerDeliveredL2.Value - telegram.PowerReturnedL2.Value),
+                (double)(telegram.PowerDeliveredL3.Value - telegram.PowerReturnedL3.Value),
+            }, telegram.PowerDeliveredL1.Unit.ToString());
+            session.TimeSeriesFor(doc, "VacPerPhase").Append(timestamp, new[] {
+                (double)telegram.VoltageL1.Value,
+                (double)telegram.VoltageL2.Value,
+                (double)telegram.VoltageL3.Value,
+            }, telegram.VoltageL1.Unit.ToString());
+            session.TimeSeriesFor(doc, "IacPerPhase").Append(timestamp, new[] {
+                (double)telegram.CurrentL1.Value,
+                (double)telegram.CurrentL2.Value,
+                (double)telegram.CurrentL3.Value,
+            }, telegram.CurrentL1.Unit.ToString());
+            session.TimeSeriesFor(doc, "EnergyCounters").Append(timestamp, new[] {
+                (double)telegram.EnergyDeliveredTariff1.Value,
+                (double)telegram.EnergyDeliveredTariff2.Value,
+                (double)telegram.EnergyReturnedTariff1.Value,
+                (double)telegram.EnergyReturnedTariff2.Value,
+            }, telegram.CurrentL1.Unit.ToString());
+
+            await session.SaveChangesAsync();
+
+        }
+
+
     }
 }
