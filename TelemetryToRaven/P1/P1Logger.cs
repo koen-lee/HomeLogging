@@ -1,8 +1,12 @@
 ﻿using DSMRParser;
 using DSMRParser.Models;
+using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
+using System;
 using System.IO.Ports;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TelemetryToRaven.P1
 {

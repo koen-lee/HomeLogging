@@ -1,5 +1,9 @@
-﻿using Raven.Client.Documents;
+﻿using Microsoft.Extensions.Logging;
+using Raven.Client.Documents;
+using System;
 using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TelemetryToRaven.Goodwe
 {
