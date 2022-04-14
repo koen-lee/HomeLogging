@@ -7,13 +7,27 @@
 	<Authors>KPvL</Authors>
 	<Company></Company>
 	<Product>Local Telemetry To RavenDB</Product>
-	<Version>1.0</Version>
+	<Version>1.3</Version>
 	<OutputType>Exe</OutputType>
 	<InstallService>true</InstallService>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UserSecretsId>dotnet-TelemetryToRaven-A1067D0E-67C3-4C10-B8EC-8DDECC3AF077</UserSecretsId>
   </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Deploy\telemetryservice.conf" />
+    <None Remove="Deploy\telemetryservice.service" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Deploy\telemetryservice.conf" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="644">
+      <LinuxPath>/etc/telemetry/telemetryservice.conf</LinuxPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Deploy\telemetryservice.service" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="644">
+      <LinuxPath>/etc/systemd/system/telemetryservice.service</LinuxPath>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
 
   <ItemGroup>
 	<PackageReference Include="DSMRParser.Net" Version="1.0.3" />
@@ -24,18 +38,12 @@
     <PackageReference Include="System.IO.Ports" Version="6.0.0" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup> 
     <None Update="P1\p1sample.txt">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Mbus\mbus_sample.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-	<Content Update="Deploy\telemetryservice.service" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="644">
-		<LinuxPath>/etc/systemd/system/telemetryservice.service</LinuxPath>
-	</Content>
-	<Content Update="Deploy\telemetryservice.conf" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="644">
-		<LinuxPath>/etc/telemetry/telemetryservice.conf</LinuxPath>
-	</Content>
   </ItemGroup>
 </Project>
