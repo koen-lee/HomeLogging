@@ -16,7 +16,7 @@ namespace TelemetryToRaven.Mbus
 
             foreach (var item in parsed.Records)
             {
-                Console.WriteLine($"{item.Id}\t {item.Unit} {item.Value}");
+                _logger.LogDebug($"{item.Id}\t {item.Unit} {item.Value}");
             }
 
             var records = parsed.Records.ToDictionary(x => x.Id);

@@ -17,7 +17,6 @@ namespace TelemetryToRaven.Goodwe
             using var channel = new UdpClient { EnableBroadcast = true };
             await SendHello(channel, host);
 
-            Console.WriteLine("Waiting for greetings back");
             var timeout = Task.Delay(ListenTimeout);
             while (true)
             {

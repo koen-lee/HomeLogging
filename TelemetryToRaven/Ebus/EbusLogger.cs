@@ -20,7 +20,7 @@ namespace TelemetryToRaven
             doc.Medium = "ebus";
             await session.StoreAsync(doc, documentId);
 
-            Console.WriteLine("Adding telemetry");
+            _logger.LogInformation("Adding telemetry");
             var appendSerie = (string path, string name, string childpath, string tag)
            =>
             {
@@ -29,13 +29,13 @@ namespace TelemetryToRaven
                     JsonNode record = GetChild(parsed, path);
                     DateTime timestamp = GetTimestamp(record);
                     double value = (double)GetChild(record, childpath);
-                    Console.WriteLine($"{timestamp}\t {name}:\t {value}");
+                    _logger.LogDebug($"{timestamp}\t {name}:\t {value}");
                     session.TimeSeriesFor(doc, name)
                       .Append(timestamp, value, tag);
                 }
                 catch (Exception e)
                 {
-                    Console.Error.WriteLine($"{path} : {e}");
+                    _logger.LogError($"{path} : {e}");
                 };
             };
 

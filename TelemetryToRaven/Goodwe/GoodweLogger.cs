@@ -15,6 +15,7 @@ namespace TelemetryToRaven.Goodwe
             var listenTimeout = TimeSpan.FromMilliseconds(1000);
             var poller = new GoodwePoller(listenTimeout);
             Inverter toQuery = null;
+            _logger.LogDebug($"polling {host}");
             await foreach (var foundInverter in poller.DiscoverInvertersAsync(host))
             {
                 if (foundInverter.Ssid == null /*== not a Goodwe inverter*/)
