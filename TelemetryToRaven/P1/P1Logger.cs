@@ -28,6 +28,16 @@ namespace TelemetryToRaven.P1
                 serial.ReadTimeout = 1500; // more than a second
                 serial.BaudRate = 115200;
                 serial.Open();
+                Telegram telegram = Extract(parser, serial, cancellationToken);
+                if (telegram == null) return;
+                await PostToRavendb(telegram);
+            }
+        }
+
+        private Telegram Extract(DSMRTelegramParser parser, SerialPort serial, CancellationToken cancellationToken)
+        {
+            while (!cancellationToken.IsCancellationRequested)
+            {
                 var data = new StringBuilder();
                 string line;
                 // Wait for start
@@ -42,15 +52,16 @@ namespace TelemetryToRaven.P1
                     line = serial.ReadLine();
                     data.AppendLine(line);
                 }
+                data.Replace("\0", ""); // there is a hardware bug somewhere
                 _logger.LogDebug($"Got telegram of length {data.Length}");
-
                 _logger.LogDebug(data.ToString());
 
-                var telegram = parser.Parse(data.Replace("\0", "").ToString());
-                await PostToRavendb(telegram);
+                if (parser.TryParse(data.ToString(), out var telegram))
+                    return telegram;
+                _logger.LogWarning("Invalid telegram, trying again");
             }
+            return null;
         }
-
 
         private async Task PostToRavendb(Telegram telegram)
         {
