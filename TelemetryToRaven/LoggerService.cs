@@ -47,6 +47,18 @@ namespace TelemetryToRaven
 
         protected abstract Task DoWork(CancellationToken stoppingToken);
 
+        protected async Task<T> Retry<T>(Func<Task<T>> errorProneCode)
+        {
+            try
+            {
+                return await errorProneCode();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Subtask failed, will retry");
+                return await errorProneCode();
+            }
+        }
         protected string RunScript(string scriptname)
         {
             var path = Path.Combine(Environment.GetEnvironmentVariable("LOGSCRIPTDIR") ?? "/etc/telemetry", scriptname);

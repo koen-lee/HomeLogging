@@ -9,15 +9,45 @@ namespace TelemetryToRaven.Goodwe
 {
     public class GoodweLogger : LoggerService
     {
+        Inverter _inverter;
         public GoodweLogger(ILogger<GoodweLogger> logger, IDocumentStore database) : base(logger, database)
         {
+
         }
 
         protected override async Task DoWork(CancellationToken cancellationToken)
         {
-            string host = Environment.GetEnvironmentVariable("GOODWE_HOST_BROADCAST") ?? "192.168.2.255";
             var listenTimeout = TimeSpan.FromMilliseconds(1000);
             var poller = new GoodwePoller(listenTimeout);
+            if (_inverter == null)
+            {
+                _inverter = await FindInverter(GetDefaultHost(), poller);
+            }
+            if (_inverter == null)
+                throw new ArgumentException("No inverter discovered, nothing to do. Either make sure your router doesn't block broadcasts or discover the IP with, for example, the Goodwe app");
+
+            InverterTelemetry response;
+            try
+            {
+                response = await Retry(() => poller.QueryInverter(_inverter.ResponseIp));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Querying inverter {_inverter.ResponseIp}, {_inverter.Mac} failed");
+                _inverter = null;
+                throw;
+            }
+            WriteObject(response);
+            await PostToRavendb(response, _inverter);
+        }
+
+        private static string GetDefaultHost()
+        {
+            return Environment.GetEnvironmentVariable("GOODWE_HOST_BROADCAST") ?? "192.168.2.255";
+        }
+
+        private async Task<Inverter> FindInverter(string host, GoodwePoller poller)
+        {
             Inverter toQuery = null;
             _logger.LogDebug($"polling {host}");
             await foreach (var foundInverter in poller.DiscoverInvertersAsync(host))
@@ -29,12 +59,7 @@ namespace TelemetryToRaven.Goodwe
                 toQuery = foundInverter;
             }
 
-            if (toQuery == null)
-                throw new ArgumentException("No inverter discovered, nothing to do. Either make sure your router doesn't block broadcasts or discover the IP with, for example, the Goodwe app");
-
-            var response = await poller.QueryInverter(toQuery.ResponseIp, cancellationToken);
-            WriteObject(response);
-            await PostToRavendb(response, toQuery);
+            return toQuery;
         }
 
         private async Task PostToRavendb(InverterTelemetry inverterStatus, Inverter inverter)

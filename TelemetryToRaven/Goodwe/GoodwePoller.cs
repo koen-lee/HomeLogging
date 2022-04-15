@@ -50,13 +50,13 @@ namespace TelemetryToRaven.Goodwe
             };
         }
 
-        public async Task<InverterTelemetry> QueryInverter(string host, CancellationToken cancellationToken)
+        public async Task<InverterTelemetry> QueryInverter(string host)
         {
             using var client = new UdpClient();
 
             var payload = new byte[] { 0x7f, 0x03, 0x75, 0x94, 0x00, 0x49, 0xd5, 0xc2 };
             await client.SendAsync(payload, payload.Length, host, port: 8899);
-            var result = await client.ReceiveAsync(cancellationToken);
+            var result = await client.ReceiveAsync(ListenTimeout);
             var response = CreateTelemetryFrom(result.Buffer, result.RemoteEndPoint.Address.ToString());
             return response;
         }
