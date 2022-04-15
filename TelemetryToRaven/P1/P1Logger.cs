@@ -99,12 +99,14 @@ namespace TelemetryToRaven.P1
             doc.Medium = "Electricity";
             await session.StoreAsync(doc, documentId);
             var timestamp = (telegram.TimeStamp ?? DateTimeOffset.UtcNow).UtcDateTime;
-            session.TimeSeriesFor(doc, "Power").Append(timestamp, (double)(telegram.PowerDelivered.Value - telegram.PowerReturned.Value), telegram.PowerDelivered.Unit.ToString());
+            session.TimeSeriesFor(doc, "Power").Append(timestamp,
+                1000*(double)(telegram.PowerDelivered.Value - telegram.PowerReturned.Value), 
+                "W");
             session.TimeSeriesFor(doc, "PowerPerPhase").Append(timestamp, new[] {
-                (double)(telegram.PowerDeliveredL1.Value - telegram.PowerReturnedL1.Value),
-                (double)(telegram.PowerDeliveredL2.Value - telegram.PowerReturnedL2.Value),
-                (double)(telegram.PowerDeliveredL3.Value - telegram.PowerReturnedL3.Value),
-            }, telegram.PowerDeliveredL1.Unit.ToString());
+                1000*(double)(telegram.PowerDeliveredL1.Value - telegram.PowerReturnedL1.Value),
+                1000*(double)(telegram.PowerDeliveredL2.Value - telegram.PowerReturnedL2.Value),
+                1000*(double)(telegram.PowerDeliveredL3.Value - telegram.PowerReturnedL3.Value),
+            }, "W");
             session.TimeSeriesFor(doc, "VacPerPhase").Append(timestamp, new[] {
                 (double)telegram.VoltageL1.Value,
                 (double)telegram.VoltageL2.Value,
