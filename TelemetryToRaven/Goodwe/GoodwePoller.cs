@@ -1,5 +1,10 @@
-﻿using System.Net.Sockets;
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Sockets;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TelemetryToRaven.Goodwe
 {
@@ -17,7 +22,6 @@ namespace TelemetryToRaven.Goodwe
             using var channel = new UdpClient { EnableBroadcast = true };
             await SendHello(channel, host);
 
-            Console.WriteLine("Waiting for greetings back");
             var timeout = Task.Delay(ListenTimeout);
             while (true)
             {
@@ -46,13 +50,13 @@ namespace TelemetryToRaven.Goodwe
             };
         }
 
-        public async Task<InverterTelemetry> QueryInverter(string host, CancellationToken cancellationToken)
+        public async Task<InverterTelemetry> QueryInverter(string host)
         {
             using var client = new UdpClient();
 
             var payload = new byte[] { 0x7f, 0x03, 0x75, 0x94, 0x00, 0x49, 0xd5, 0xc2 };
             await client.SendAsync(payload, payload.Length, host, port: 8899);
-            var result = await client.ReceiveAsync(cancellationToken);
+            var result = await client.ReceiveAsync(ListenTimeout);
             var response = CreateTelemetryFrom(result.Buffer, result.RemoteEndPoint.Address.ToString());
             return response;
         }

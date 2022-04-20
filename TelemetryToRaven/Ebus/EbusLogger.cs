@@ -1,5 +1,9 @@
-﻿using Raven.Client.Documents;
+﻿using Microsoft.Extensions.Logging;
+using Raven.Client.Documents;
+using System;
 using System.Text.Json.Nodes;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TelemetryToRaven
 {
@@ -12,7 +16,7 @@ namespace TelemetryToRaven
         protected override async Task DoWork(CancellationToken cancellationToken)
         {
             JsonNode parsed = GetEbusJson();
-            var session = store.OpenAsyncSession();
+            var session = _store.OpenAsyncSession();
             string documentId = "meters/" + "ebus";
             var doc = await session.LoadAsync<Meter>(documentId);
             if (doc == null) doc = new Meter();
@@ -20,7 +24,7 @@ namespace TelemetryToRaven
             doc.Medium = "ebus";
             await session.StoreAsync(doc, documentId);
 
-            Console.WriteLine("Adding telemetry");
+            _logger.LogInformation("Adding telemetry");
             var appendSerie = (string path, string name, string childpath, string tag)
            =>
             {
@@ -29,13 +33,13 @@ namespace TelemetryToRaven
                     JsonNode record = GetChild(parsed, path);
                     DateTime timestamp = GetTimestamp(record);
                     double value = (double)GetChild(record, childpath);
-                    Console.WriteLine($"{timestamp}\t {name}:\t {value}");
+                    _logger.LogDebug($"{timestamp}\t {name}:\t {value}");
                     session.TimeSeriesFor(doc, name)
                       .Append(timestamp, value, tag);
                 }
                 catch (Exception e)
                 {
-                    Console.Error.WriteLine($"{path} : {e}");
+                    _logger.LogError($"{path} : {e}");
                 };
             };
 

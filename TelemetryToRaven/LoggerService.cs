@@ -1,17 +1,23 @@
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
+using System;
 using System.Diagnostics;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace TelemetryToRaven
 {
     public abstract class LoggerService : BackgroundService
     {
         protected readonly ILogger _logger;
-        protected readonly IDocumentStore store;
+        protected readonly IDocumentStore _store;
 
         public LoggerService(ILogger logger, IDocumentStore database)
         {
             _logger = logger;
-            store = database;
+            _store = database;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,6 +47,18 @@ namespace TelemetryToRaven
 
         protected abstract Task DoWork(CancellationToken stoppingToken);
 
+        protected async Task<T> Retry<T>(Func<Task<T>> errorProneCode)
+        {
+            try
+            {
+                return await errorProneCode();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Subtask failed, will retry");
+                return await errorProneCode();
+            }
+        }
         protected string RunScript(string scriptname)
         {
             var path = Path.Combine(Environment.GetEnvironmentVariable("LOGSCRIPTDIR") ?? "/etc/telemetry", scriptname);

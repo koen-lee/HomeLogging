@@ -1,44 +1,39 @@
 ﻿using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
-using System.IO;
-using System.Linq;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using TelemetryToRaven.Sdm;
+using TelemetryToRaven.Mbus;
 
-namespace TelemetryToRaven.Mbus
+namespace TelemetryToRaven.Sdm
 {
-    public class MbusLogger : LoggerService
+    public class SdmLogger : LoggerService
     {
-        public MbusLogger(ILogger<SdmLogger> logger, IDocumentStore database) : base(logger, database)
+        public SdmLogger(ILogger<SdmLogger> logger, IDocumentStore database) : base(logger, database)
         {
         }
 
         protected override async Task DoWork(CancellationToken cancellationToken)
         {
-            var parsed = Deserialize(RunScript("mbus.sh"));
-
-            foreach (var item in parsed.Records)
-            {
-                _logger.LogDebug($"{item.Id}\t {item.Unit} {item.Value}");
-            }
-
-            var records = parsed.Records.ToDictionary(x => x.Id);
-
+            var port = Environment.GetEnvironmentVariable("SDM_PORT_PATH") ?? "/dev/ttyUSB0";
+            _logger.LogInformation($"Using {port}");
+            
             using var session = _store.OpenAsyncSession();
+            /*
             string documentId = "meters/" + parsed.SlaveInformation.Id;
             var doc = await session.LoadAsync<Meter>(documentId);
             if (doc == null) doc = new Meter();
-            doc.VendorInfo = parsed.SlaveInformation.Manufacturer;
-            doc.Medium = parsed.SlaveInformation.Medium;
+            doc.VendorInfo = "Sdm series electricity meter";
+            doc.Medium = "Electricity for heat pump";
             await session.StoreAsync(doc, documentId);
 
-            var appendSerie = (MBusData.DataRecord record, string name, string tag, double factor)
+
+            var appendSerie = (double value, string name, string tag, double factor)
                 =>
             {
                 session.TimeSeriesFor(doc, name)
-                  .Append(record.Timestamp.UtcDateTime, record.NumericValue * factor, tag);
+                  .Append(record.Timestamp.UtcDateTime, value * factor, tag);
             };
 
             appendSerie(records[1], "HeatEnergy", "kWh", 1);
@@ -46,15 +41,9 @@ namespace TelemetryToRaven.Mbus
             appendSerie(records[10], "ReturnTemperature", "°C", 0.01);
             appendSerie(records[13], "VolumeFlow", "m³/h", 1);
             appendSerie(records[12], "Power", "W", 100);
-
+            */
             await session.SaveChangesAsync();
             _logger.LogInformation("Done");
-        }
-
-        private static MBusData Deserialize(string stream)
-        {
-            var serializer = new XmlSerializer(typeof(MBusData), "");
-            return (MBusData)serializer.Deserialize(new StringReader(stream));
         }
     }
 }
