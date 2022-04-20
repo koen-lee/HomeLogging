@@ -52,10 +52,21 @@ namespace TelemetryToRaven.Mbus
                   .Append(record.Timestamp.UtcDateTime, record.NumericValue * factor, tag);
             };
 
+            var returntemperature = records[10];
+            var flowtemperature = records[9];
+            var volumeflow = records[13];
             appendSerie(records[1], "HeatEnergy", "kWh", 1);
-            appendSerie(records[9], "FlowTemperature", "°C", 0.01);
-            appendSerie(records[10], "ReturnTemperature", "°C", 0.01);
-            appendSerie(records[13], "VolumeFlow", "m³/h", 1);
+            appendSerie(flowtemperature, "FlowTemperature", "°C", 0.01);
+            appendSerie(returntemperature, "ReturnTemperature", "°C", 0.01);
+            appendSerie(volumeflow, "VolumeFlow", "m³/h", 1);
+            appendSerie(records[12], "Power", "W", 100);
+
+
+            // Q = Cw * dT * flow * time
+            var dT = records[11].NumericValue * 0.01;
+            var power = 4186 * dT * (volumeflow.NumericValue / 3600 /* m³/h -> kg/s */);
+            session.TimeSeriesFor(doc, "CalculatedPower")
+                 .Append(volumeflow.Timestamp.UtcDateTime, new[] { Math.Round(power, 0), dT }, "W;K");
             appendSerie(records[12], "Power", "W", 100);
 
             await session.SaveChangesAsync();
