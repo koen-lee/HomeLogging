@@ -11,7 +11,7 @@ namespace TelemetryToRaven.Mbus
 {
     public class MbusLogger : LoggerService
     {
-        public MbusLogger(ILogger<SdmLogger> logger, IDocumentStore database) : base(logger, database)
+        public MbusLogger(ILogger<MbusLogger> logger, IDocumentStore database) : base(logger, database)
         {
         }
 
