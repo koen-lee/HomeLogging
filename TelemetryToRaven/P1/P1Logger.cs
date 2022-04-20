@@ -23,14 +23,21 @@ namespace TelemetryToRaven.P1
 
             var parser = new DSMRTelegramParser();
 
-            using (var serial = new SerialPort(port))
+            using (var serial = new SerialPort(port)
             {
-                serial.ReadTimeout = 1500; // more than a second
-                serial.BaudRate = 115200;
+                ReadTimeout = 1500,
+                BaudRate = 115200,
+                StopBits = StopBits.One,
+                Parity = Parity.None,
+            })
+            {
                 serial.Open();
-                Telegram telegram = Extract(parser, serial, cancellationToken);
-                if (telegram == null) return;
-                await PostToRavendb(telegram);
+                while (!cancellationToken.IsCancellationRequested)
+                {
+                    Telegram telegram = Extract(parser, serial, cancellationToken);
+                    if (telegram == null) return;
+                    await PostToRavendb(telegram);
+                }
             }
         }
 
@@ -100,7 +107,7 @@ namespace TelemetryToRaven.P1
             await session.StoreAsync(doc, documentId);
             var timestamp = (telegram.TimeStamp ?? DateTimeOffset.UtcNow).UtcDateTime;
             session.TimeSeriesFor(doc, "Power").Append(timestamp,
-                1000*(double)(telegram.PowerDelivered.Value - telegram.PowerReturned.Value), 
+                1000 * (double)(telegram.PowerDelivered.Value - telegram.PowerReturned.Value),
                 "W");
             session.TimeSeriesFor(doc, "PowerPerPhase").Append(timestamp, new[] {
                 1000*(double)(telegram.PowerDeliveredL1.Value - telegram.PowerReturnedL1.Value),
