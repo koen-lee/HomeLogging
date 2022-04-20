@@ -19,7 +19,16 @@ namespace TelemetryToRaven
             var session = _store.OpenAsyncSession();
             string documentId = "meters/" + "ebus";
             var doc = await session.LoadAsync<Meter>(documentId);
-            if (doc == null) doc = new Meter();
+            if (doc == null)
+            {
+                doc = new Meter();
+
+                await _store.TimeSeries.RegisterAsync<Meter>("OutsideTemp", new[] { "Outside temperature [°C]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("DesiredFlowTemperature", new[] { "Flow setpoint [°C]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("RoomTemperature", new[] { "Room temperature [°C]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("DesiredRoomTemperature", new[] { "Room setpoint [°C]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("Modulation", new[] { "Modulation [%]" });
+            }
             doc.VendorInfo = "Vaillant";
             doc.Medium = "ebus";
             await session.StoreAsync(doc, documentId);

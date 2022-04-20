@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -29,7 +30,17 @@ namespace TelemetryToRaven.Mbus
             using var session = _store.OpenAsyncSession();
             string documentId = "meters/" + parsed.SlaveInformation.Id;
             var doc = await session.LoadAsync<Meter>(documentId);
-            if (doc == null) doc = new Meter();
+            if (doc == null)
+            {
+                doc = new Meter();
+
+                await _store.TimeSeries.RegisterAsync<Meter>("HeatEnergy", new[] { "HeatEnergy [kWh]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("FlowTemperature", new[] { "Flow temperature [°C]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("ReturnTemperature", new[] { "Return temperature [°C]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("VolumeFlow", new[] { "Volume flow [m³/h]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("Power", new[] { "Power [W]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("CalculatedPower", new[] { "Calculated Power [W]", "Temperature difference [K]" });
+            }
             doc.VendorInfo = parsed.SlaveInformation.Manufacturer;
             doc.Medium = parsed.SlaveInformation.Medium;
             await session.StoreAsync(doc, documentId);
