@@ -14,7 +14,9 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Deploy\telemetryservice.conf" />
-    <None Remove="Deploy\telemetryservice.service" />
+	  <None Remove="Deploy\telemetryservice.service" />
+	  <None Remove="Deploy\ebus.sh" />
+	  <None Remove="Deploy\mbus.sh" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Deploy\telemetryservice.conf" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="644">
@@ -25,6 +27,15 @@
       <LinuxPath>/etc/systemd/system/telemetryservice.service</LinuxPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+
+	  <Content Include="Deploy\ebus.sh" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755">
+		  <LinuxPath>/etc/telemetry/ebus.sh</LinuxPath>
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
+	  <Content Include="Deploy\mbus.sh" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755">
+		  <LinuxPath>/etc/telemetry/mbus.sh</LinuxPath>
+		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </Content>
   </ItemGroup>
 
   <ItemGroup>
