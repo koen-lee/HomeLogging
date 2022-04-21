@@ -63,7 +63,7 @@ namespace TelemetryToRaven.Mbus
 
 
             // Q = Cw * dT * flow * time
-            var dT = records[11].NumericValue * 0.01;
+            var dT = (flowtemperature.NumericValue - returntemperature.NumericValue) * 0.01;
             var power = 4186 * dT * (volumeflow.NumericValue / 3600 /* m³/h -> kg/s */);
             session.TimeSeriesFor(doc, "CalculatedPower")
                  .Append(volumeflow.Timestamp.UtcDateTime, new[] { Math.Round(power, 0), dT }, "W;K");

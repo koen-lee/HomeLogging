@@ -43,6 +43,7 @@ namespace TelemetryToRaven.P1
 
         private Telegram Extract(DSMRTelegramParser parser, SerialPort serial, CancellationToken cancellationToken)
         {
+            int tries = 0;
             while (!cancellationToken.IsCancellationRequested)
             {
                 var data = new StringBuilder();
@@ -62,12 +63,32 @@ namespace TelemetryToRaven.P1
                 data.Replace("\0", ""); // there is a hardware bug somewhere
                 _logger.LogDebug($"Got telegram of length {data.Length}");
                 _logger.LogDebug(data.ToString());
-
-                if (parser.TryParse(data.ToString(), out var telegram))
+                if (TryParse(parser, data, out var telegram))
+                {
+                    if (tries > 0)
+                        _logger.LogInformation($"Success after {tries} retries");
                     return telegram;
-                _logger.LogWarning("Invalid telegram, trying again");
+                }
+                _logger.LogDebug("Invalid telegram, trying again");
+                tries++;
+
             }
             return null;
+        }
+
+        private bool TryParse(DSMRTelegramParser parser, StringBuilder data, out Telegram telegram)
+        {
+            try
+            {
+                if (parser.TryParse(data.ToString(), out telegram))
+                    return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogDebug(ex, "failed");
+            }
+            telegram = null;
+            return false;
         }
 
         private async Task PostToRavendb(Telegram telegram)
