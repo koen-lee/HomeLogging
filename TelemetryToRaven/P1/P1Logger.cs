@@ -39,6 +39,7 @@ namespace TelemetryToRaven.P1
                     await PostToRavendb(telegram);
                 }
             }
+            Delay = TimeSpan.FromSeconds(1);
         }
 
         private Telegram Extract(DSMRTelegramParser parser, SerialPort serial, CancellationToken cancellationToken)
