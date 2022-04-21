@@ -14,15 +14,17 @@ namespace TelemetryToRaven
         protected readonly ILogger _logger;
         protected readonly IDocumentStore _store;
 
+        protected TimeSpan Delay { get; set; }
+
         public LoggerService(ILogger logger, IDocumentStore database)
         {
             _logger = logger;
             _store = database;
+            Delay = TimeSpan.FromMinutes(1);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            TimeSpan delay = TimeSpan.FromMinutes(1);
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -32,16 +34,16 @@ namespace TelemetryToRaven
                     var timer = Stopwatch.StartNew();
                     await DoWork(stoppingToken);
                     _logger.LogDebug($"Work took {timer.Elapsed}");
-                    delay = TimeSpan.FromMinutes(1) - timer.Elapsed;
-                    if (delay < TimeSpan.FromSeconds(5)) delay = TimeSpan.FromSeconds(5);
+                    Delay = TimeSpan.FromMinutes(1) - timer.Elapsed;
+                    if (Delay < TimeSpan.FromSeconds(5)) Delay = TimeSpan.FromSeconds(5);
                 }
                 catch (Exception ex)
                 {
                     _logger.LogError(ex, "Task failed");
-                    if (delay < TimeSpan.FromHours(1))
-                        delay = delay.Add(delay);
+                    if (Delay < TimeSpan.FromHours(1))
+                        Delay = Delay.Add(Delay);
                 }
-                await Task.Delay(delay, stoppingToken);
+                await Task.Delay(Delay, stoppingToken);
             }
         }
 

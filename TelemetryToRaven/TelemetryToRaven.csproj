@@ -7,7 +7,7 @@
 	<Authors>KPvL</Authors>
 	<Company></Company>
 	<Product>Local Telemetry To RavenDB</Product>
-	<Version>1.6</Version>
+	<Version>1.7</Version>
 	<OutputType>Exe</OutputType>
 	<InstallService>true</InstallService>
     <UserSecretsId>dotnet-TelemetryToRaven-A1067D0E-67C3-4C10-B8EC-8DDECC3AF077</UserSecretsId>
@@ -39,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<PackageReference Include="AngleSharp.Io" Version="0.16.0" />
 	<PackageReference Include="DSMRParser.Net" Version="1.0.3" />
 	<PackageReference Include="NModbus.Serial" Version="3.0.72" />
 	<PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.21216.1" />

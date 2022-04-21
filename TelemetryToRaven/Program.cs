@@ -8,6 +8,7 @@ using TelemetryToRaven.Goodwe;
 using TelemetryToRaven.Mbus;
 using TelemetryToRaven.P1;
 using TelemetryToRaven.Sdm;
+using TelemetryToRaven.Weewx;
 
 namespace TelemetryToRaven
 {
@@ -28,6 +29,7 @@ namespace TelemetryToRaven
                                 AddHostedServiceWhenEnabled<GoodweLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<P1Logger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<SdmLogger>(services, enabledServices);
+                                AddHostedServiceWhenEnabled<WeewxLogger>(services, enabledServices);
                                 services.AddSingleton(CreateDocumentStore(serverurl, database));
                             })
                             .Build();

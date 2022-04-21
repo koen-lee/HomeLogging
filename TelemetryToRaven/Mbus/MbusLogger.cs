@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
+using System;
 using System.IO;
 using System.Linq;
 using System.Threading;
@@ -29,7 +30,17 @@ namespace TelemetryToRaven.Mbus
             using var session = _store.OpenAsyncSession();
             string documentId = "meters/" + parsed.SlaveInformation.Id;
             var doc = await session.LoadAsync<Meter>(documentId);
-            if (doc == null) doc = new Meter();
+            if (doc == null)
+            {
+                doc = new Meter();
+
+                await _store.TimeSeries.RegisterAsync<Meter>("HeatEnergy", new[] { "HeatEnergy [kWh]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("FlowTemperature", new[] { "Flow temperature [°C]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("ReturnTemperature", new[] { "Return temperature [°C]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("VolumeFlow", new[] { "Volume flow [m³/h]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("Power", new[] { "Power [W]" });
+                await _store.TimeSeries.RegisterAsync<Meter>("CalculatedPower", new[] { "Calculated Power [W]", "Temperature difference [K]" });
+            }
             doc.VendorInfo = parsed.SlaveInformation.Manufacturer;
             doc.Medium = parsed.SlaveInformation.Medium;
             await session.StoreAsync(doc, documentId);
@@ -41,10 +52,21 @@ namespace TelemetryToRaven.Mbus
                   .Append(record.Timestamp.UtcDateTime, record.NumericValue * factor, tag);
             };
 
+            var returntemperature = records[10];
+            var flowtemperature = records[9];
+            var volumeflow = records[13];
             appendSerie(records[1], "HeatEnergy", "kWh", 1);
-            appendSerie(records[9], "FlowTemperature", "°C", 0.01);
-            appendSerie(records[10], "ReturnTemperature", "°C", 0.01);
-            appendSerie(records[13], "VolumeFlow", "m³/h", 1);
+            appendSerie(flowtemperature, "FlowTemperature", "°C", 0.01);
+            appendSerie(returntemperature, "ReturnTemperature", "°C", 0.01);
+            appendSerie(volumeflow, "VolumeFlow", "m³/h", 1);
+            appendSerie(records[12], "Power", "W", 100);
+
+
+            // Q = Cw * dT * flow * time
+            var dT = (flowtemperature.NumericValue - returntemperature.NumericValue) * 0.01;
+            var power = 4186 * dT * (volumeflow.NumericValue / 3600 /* m³/h -> kg/s */);
+            session.TimeSeriesFor(doc, "CalculatedPower")
+                 .Append(volumeflow.Timestamp.UtcDateTime, new[] { Math.Round(power, 0), dT }, "W;K");
             appendSerie(records[12], "Power", "W", 100);
 
             await session.SaveChangesAsync();

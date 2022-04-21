@@ -13,28 +13,16 @@ var store = new DocumentStore()
 };
 store.Initialize();
 var session = store.OpenSession();
-string documentId = "meters/ISK5\\2M550T-1012";
-string tsName = "PowerPerPhase";
-var doc = session.Load<Meter>(documentId);
-var query =
-        (IRavenQueryable<TimeSeriesRawResult>)session.Query<Meter>()
-        .Where(c => c.Id == documentId)
-        .Select(q => RavenQuery.TimeSeries(q, tsName)
-            .Where(ts => ts.Tag == "kW")
-            .ToList()
-         );
-
-var result = query.Single();
-var ts = session.TimeSeriesFor(doc, tsName);
-using (var tsStream = result.Stream)
-{
-    while (tsStream.MoveNext())
-    {
-        var entry = tsStream.Current;
-        ts.Append(entry.Timestamp, entry.Values.Select(v => v * 1000), "W");
-        Console.Write(".");
-    }
-}
+/*
+await store.TimeSeries.RegisterAsync<Meter>("HeatEnergy", new[] { "HeatEnergy [kWh]" });
+await store.TimeSeries.RegisterAsync<Meter>("FlowTemperature", new[] { "Flow temperature [°C]" });
+await store.TimeSeries.RegisterAsync<Meter>("ReturnTemperature", new[] { "Return temperature [°C]" });
+await store.TimeSeries.RegisterAsync<Meter>("VolumeFlow", new[] { "Volume flow [m³/h]" });*/
+await store.TimeSeries.RegisterAsync<Meter>("OutsideTemp", new[] { "Outside temperature [°C]" });
+await store.TimeSeries.RegisterAsync<Meter>("DesiredFlowTemperature", new[] { "Flow setpoint [°C]" });
+await store.TimeSeries.RegisterAsync<Meter>("RoomTemperature", new[] { "Room temperature [°C]" });
+await store.TimeSeries.RegisterAsync<Meter>("DesiredRoomTemperature", new[] { "Room setpoint [°C]" });
+await store.TimeSeries.RegisterAsync<Meter>("Modulation", new[] { "Modulation [%]" });
 session.SaveChanges();
 
 Console.WriteLine("The world is now a better place.");
