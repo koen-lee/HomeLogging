@@ -39,6 +39,7 @@
   </ItemGroup>
 
   <ItemGroup>
+	<PackageReference Include="AngleSharp.Io" Version="0.16.0" />
 	<PackageReference Include="DSMRParser.Net" Version="1.0.3" />
 	<PackageReference Include="NModbus.Serial" Version="3.0.72" />
 	<PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.21216.1" />
