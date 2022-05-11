@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -56,38 +57,60 @@ namespace TelemetryToRaven.Weewx
 
             foreach (var value in currentValues)
             {
-                session.TimeSeriesFor(doc, value.Name).Append(timestamp, value.Value, value.Unit);
+                session.TimeSeriesFor(doc, value.Name).Append(timestamp, value.Values, value.Unit);
             };
 
             await session.SaveChangesAsync();
             _logger.LogInformation("Done");
         }
 
-        static Regex _valueRegex = new Regex(@"(\d+[.]?\d)\s?(\D+)", RegexOptions.Singleline);
-        private WeatherItem GetItem(string label, string data)
+        static Regex _valueRegex = new Regex(@"(-?\d+[.]?\d*)\s?(\S+)[^(]*\(?([^)]*)", RegexOptions.Compiled);
+        public static WeatherItem GetItem(string label, string data)
         {
-            var valueParts = _valueRegex.Match(data);
-            if (!valueParts.Success)
-                return null;
+            string unit;
+            double value;
+            var values = new List<double>();
+            if (double.TryParse(data, out value))
+            {
+                unit = string.Empty;
+                values.Add(value);
+            }
+            else
+            {
+                var valueParts = _valueRegex.Match(data);
+                if (!valueParts.Success)
+                    return null;
 
-            var unit = valueParts.Groups[2].Value;
-            var value = double.Parse(valueParts.Groups[1].Value);
+                unit = valueParts.Groups[2].Value;
+                value = double.Parse(valueParts.Groups[1].Value);
+                values.Add(value);
+                if (valueParts.Groups[3].Success && !string.IsNullOrWhiteSpace(valueParts.Groups[3].Value))
+                {
+                    var subitem = GetItem(label, valueParts.Groups[3].Value);
+                    if (subitem != null)
+                    {
+                        values.AddRange(subitem.Values);
+                        unit += ";" + subitem.Unit;
+                    }
+                }
+            }
             return new WeatherItem
             {
                 Name = label.Replace(" ", ""),
                 Description = $"{ label} [{unit}]",
-                Value = value,
+                Values = values.ToArray(),
                 Unit = unit,
             };
         }
     }
-    class WeatherItem
+
+    public class WeatherItem
     {
         public string Name { get; set; }
 
         public string Description { get; set; }
 
-        public double Value { get; set; }
+        public double[] Values { get; set; }
 
         public string Unit { get; set; }
     }

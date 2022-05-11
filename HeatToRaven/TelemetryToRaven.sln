@@ -5,7 +5,9 @@ VisualStudioVersion = 17.0.31912.275
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryToRaven", "..\TelemetryToRaven\TelemetryToRaven.csproj", "{28690A70-A401-493F-A98B-773BE40007AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RandomQueries", "RandomQueries\RandomQueries.csproj", "{CF41AA99-102F-45C3-8919-BC6B2CFBDC70}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RandomQueries", "RandomQueries\RandomQueries.csproj", "{CF41AA99-102F-45C3-8919-BC6B2CFBDC70}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TelemetryTests", "TelemetryTests\TelemetryTests.csproj", "{AE2DF001-5D74-4B19-87F6-98FC8AA79C4B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{CF41AA99-102F-45C3-8919-BC6B2CFBDC70}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CF41AA99-102F-45C3-8919-BC6B2CFBDC70}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CF41AA99-102F-45C3-8919-BC6B2CFBDC70}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE2DF001-5D74-4B19-87F6-98FC8AA79C4B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE2DF001-5D74-4B19-87F6-98FC8AA79C4B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE2DF001-5D74-4B19-87F6-98FC8AA79C4B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE2DF001-5D74-4B19-87F6-98FC8AA79C4B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
