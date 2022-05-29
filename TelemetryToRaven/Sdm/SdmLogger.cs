@@ -33,7 +33,8 @@ namespace TelemetryToRaven.Sdm
             doc.Medium = "Electricity for heat pump";
             await session.StoreAsync(doc, documentId);
 
-            using var master = new ModbusFactory().CreateRtuMaster(new SerialPort(port) { BaudRate = 2400, Parity = Parity.None });
+            using var master = new ModbusFactory().CreateRtuMaster(
+                new SerialPort(port) { BaudRate = 2400, Parity = Parity.None });
             var timestamp = DateTime.UtcNow;
             var registers = await master.ReadInputRegistersAsync(1, 0, 80);
 
