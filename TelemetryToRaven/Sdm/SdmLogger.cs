@@ -1,10 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
+using NModbus;
+using NModbus.Serial;
 using Raven.Client.Documents;
 using System;
+using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Serialization;
-using TelemetryToRaven.Mbus;
 
 namespace TelemetryToRaven.Sdm
 {
@@ -16,34 +17,55 @@ namespace TelemetryToRaven.Sdm
 
         protected override async Task DoWork(CancellationToken cancellationToken)
         {
-            var port = Environment.GetEnvironmentVariable("SDM_PORT_PATH") ?? "/dev/ttyUSB0";
+            var port = Environment.GetEnvironmentVariable("SDM_PORT_PATH") ?? "/dev/ttyUSB1";
             _logger.LogInformation($"Using {port}");
-            
+
             using var session = _store.OpenAsyncSession();
-            /*
-            string documentId = "meters/" + parsed.SlaveInformation.Id;
+
+            string documentId = "meters/ElectricityHeatpump";
             var doc = await session.LoadAsync<Meter>(documentId);
-            if (doc == null) doc = new Meter();
+            if (doc == null)
+            {
+                doc = await CreateNewDocument();
+            }
+
             doc.VendorInfo = "Sdm series electricity meter";
             doc.Medium = "Electricity for heat pump";
             await session.StoreAsync(doc, documentId);
 
+            using SerialPort serialPort = new SerialPort(port) { BaudRate = 2400, Parity = Parity.None };
+            serialPort.Open();
+            using var master = new ModbusFactory().CreateRtuMaster(serialPort);
+            var timestamp = DateTime.UtcNow;
+            var registers = await master.ReadInputRegistersAsync(1, 0, 80);
 
-            var appendSerie = (double value, string name, string tag, double factor)
+            var appendSerie = (int offset, string name, string tag)
                 =>
             {
+                float value = BitConverter.Int32BitsToSingle(registers[offset] << 16 | registers[offset + 1]);
+                double rounded = Math.Round(value, 3);
+                _logger.LogDebug("Got {value} {tag} for {SeriesName}", rounded, tag, name);
                 session.TimeSeriesFor(doc, name)
-                  .Append(record.Timestamp.UtcDateTime, value * factor, tag);
+                  .Append(timestamp, rounded, tag);
             };
 
-            appendSerie(records[1], "HeatEnergy", "kWh", 1);
-            appendSerie(records[9], "FlowTemperature", "°C", 0.01);
-            appendSerie(records[10], "ReturnTemperature", "°C", 0.01);
-            appendSerie(records[13], "VolumeFlow", "m³/h", 1);
-            appendSerie(records[12], "Power", "W", 100);
-            */
+            appendSerie(0, "Voltage", "V");
+            appendSerie(6, "Current", "A");
+            appendSerie(12, "Power", "W");
+            appendSerie(18, "Apparent Power", "VAr");
+            appendSerie(30, "Power factor", null);
+            appendSerie(70, "GridFrequency", "Hz");
+            appendSerie(72, "Energy", "kWh");
             await session.SaveChangesAsync();
             _logger.LogInformation("Done");
+        }
+
+        private async Task<Meter> CreateNewDocument()
+        {
+            Meter doc = new Meter();
+            await _store.TimeSeries.RegisterAsync<Meter>("Voltage", new[] {
+                    "Voltage [V]" });
+            return doc;
         }
     }
 }
