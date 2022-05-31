@@ -64,6 +64,7 @@ namespace TelemetryToRaven
             appendSerie("hmu.messages.State", "State", "fields.3.value", null);
             appendSerie("720.messages.z1RoomTemp", "RoomTemperature", "fields.tempv.value", "°C");
             appendSerie("720.messages.z1ActualRoomTempDesired", "DesiredRoomTemperature", "fields.tempv.value", "°C");
+            appendSerie("720.messages.Hc1MinFlowTempDesired", "MinimumFlowTemp", "fields.tempv.value", "°C");
 
             await session.SaveChangesAsync();
         }
