@@ -61,7 +61,7 @@ namespace TelemetryToRaven
                 return await errorProneCode();
             }
         }
-        protected string RunScript(string scriptname)
+        protected string RunScript(string scriptname, string arguments = null)
         {
             var path = Path.Combine(Environment.GetEnvironmentVariable("LOGSCRIPTDIR") ?? "/etc/telemetry", scriptname);
             _logger.LogInformation($"Running {path}");
@@ -69,7 +69,8 @@ namespace TelemetryToRaven
             {
                 FileName = path,
                 RedirectStandardOutput = true,
-                RedirectStandardError = true
+                RedirectStandardError = true,
+                Arguments = arguments ?? string.Empty
             };
             var toRun = Process.Start(scriptInfo);
 
