@@ -37,18 +37,18 @@ namespace TelemetryToRaven
             }
 
             var GetLast = (string timeseries, out double value) =>
-             {
-                 var entries = session.TimeSeriesFor(documentId, timeseries).GetAsync(DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(2)), token: cancellationToken).Result;
-                 if (entries.Any())
-                 {
-                     value = entries.Last().Value;
-                     _logger.LogDebug($"Using {timeseries} {value}");
-                     return true;
-                 }
-                 _logger.LogWarning($"Missing {timeseries}");
-                 value = double.NaN;
-                 return false;
-             };
+            {
+                var entries = session.TimeSeriesFor(documentId, timeseries).GetAsync(DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(2)), token: cancellationToken).Result;
+                if (entries.Any())
+                {
+                    value = entries.Last().Value;
+                    _logger.LogDebug($"Using {timeseries} {value}");
+                    return true;
+                }
+                _logger.LogWarning($"Missing {timeseries}");
+                value = double.NaN;
+                return false;
+            };
 
 
             _logger.LogInformation("Reading telemetry");
@@ -57,30 +57,37 @@ namespace TelemetryToRaven
             if (!GetLast("FlowTemperature", out var actualFlowTemp)) return;
             if (!GetLast("DesiredFlowTemperature", out var desiredFlowTemp)) return;
             if (!GetLast("Modulation", out var modulation)) return;
+            UpdateMinimumFlowTemp(doc, currentMinimum, actualFlowTemp, desiredFlowTemp, modulation);
+        }
 
-            if (currentMinimum < doc.MinimumFlowTemperature)
+        public void UpdateMinimumFlowTemp(EbusMeter settings, double currentMinimum, double actualFlowTemp, double desiredFlowTemp, double modulation)
+        {
+            if (currentMinimum < settings.MinimumFlowTemperature)
             {
                 _logger.LogInformation("Reset temperature, it was lower than the configured minimum.");
-                SetMinimumFlowTemp(doc.MinimumFlowTemperature);
+                SetMinimumFlowTemp(settings.MinimumFlowTemperature);
             }
-            else if (desiredFlowTemp < currentMinimum && currentMinimum > doc.MinimumFlowTemperature)
+            else if (desiredFlowTemp < currentMinimum && currentMinimum > settings.MinimumFlowTemperature)
             {
-                // reset    
                 _logger.LogInformation("Reset temperature, it was higher and there is no heat requested.");
-                SetMinimumFlowTemp(doc.MinimumFlowTemperature);
+                SetMinimumFlowTemp(settings.MinimumFlowTemperature);
             }
             else if (actualFlowTemp > desiredFlowTemp &&
                      modulation < 2 &&
-                     actualFlowTemp < doc.MaximumFlowTemperature &&
-                     desiredFlowTemp > doc.MinimumFlowTemperature)
+                     actualFlowTemp < settings.MaximumFlowTemperature &&
+                     desiredFlowTemp >= settings.MinimumFlowTemperature)
             {
                 // extend the run by setting the minimum to the actual flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Extend the run");
                 SetMinimumFlowTemp(actualFlowTemp);
             }
+            else
+            {
+                _logger.LogDebug($"Nothing to do, all is well");
+            }
         }
 
-        private void SetMinimumFlowTemp(double minimumFlowTemperature)
+        protected virtual void SetMinimumFlowTemp(double minimumFlowTemperature)
         {
             _logger.LogInformation($"Setting new minimum flow temperature to {minimumFlowTemperature}");
             RunScript("writeminflowtemp.sh", $"{minimumFlowTemperature:0.0}");
