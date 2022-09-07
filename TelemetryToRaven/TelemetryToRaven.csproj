@@ -7,7 +7,7 @@
 	<Authors>KPvL</Authors>
 	<Company></Company>
 	<Product>Local Telemetry To RavenDB</Product>
-	<Version>1.11</Version>
+	<Version>1.12</Version>
 	<OutputType>Exe</OutputType>
 	<InstallService>true</InstallService>
     <UserSecretsId>dotnet-TelemetryToRaven-A1067D0E-67C3-4C10-B8EC-8DDECC3AF077</UserSecretsId>
@@ -17,8 +17,12 @@
 	  <None Remove="Deploy\telemetryservice.service" />
 	  <None Remove="Deploy\ebus.sh" />
 	  <None Remove="Deploy\mbus.sh" />
+	  <None Remove="Deploy\writeminflowtemp.sh" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Deploy\writeminflowtemp.sh" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755"> 
+      <LinuxPath>/etc/telemetry/writeminflowtemp.sh</LinuxPath>
+    </Content>
     <Content Include="Deploy\telemetryservice.conf" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="644">
       <LinuxPath>/etc/telemetry/telemetryservice.conf</LinuxPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

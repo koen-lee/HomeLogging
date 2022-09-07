@@ -30,6 +30,7 @@ namespace TelemetryToRaven
                                 AddHostedServiceWhenEnabled<P1Logger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<SdmLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<WeewxLogger>(services, enabledServices);
+                                AddHostedServiceWhenEnabled<EbusRunExtender>(services, enabledServices);
                                 services.AddSingleton(CreateDocumentStore(serverurl, database));
                             })
                             .Build();
