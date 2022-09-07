@@ -6,6 +6,7 @@ using System;
 using System.IO.Ports;
 using System.Threading;
 using System.Threading.Tasks;
+using NModbus.Device;
 
 namespace TelemetryToRaven.Sdm
 {
@@ -23,7 +24,7 @@ namespace TelemetryToRaven.Sdm
             using var session = _store.OpenAsyncSession();
 
             string documentId = "meters/ElectricityHeatpump";
-            var doc = await session.LoadAsync<Meter>(documentId);
+            var doc = await session.LoadAsync<Meter>(documentId, cancellationToken);
             if (doc == null)
             {
                 doc = await CreateNewDocument();
@@ -31,32 +32,36 @@ namespace TelemetryToRaven.Sdm
 
             doc.VendorInfo = "Sdm series electricity meter";
             doc.Medium = "Electricity for heat pump";
-            await session.StoreAsync(doc, documentId);
+            await session.StoreAsync(doc, documentId, cancellationToken);
 
-            using SerialPort serialPort = new SerialPort(port) { BaudRate = 2400, Parity = Parity.None };
+            using SerialPort serialPort = new SerialPort(port)
+            {
+                BaudRate = 2400,
+                Parity = Parity.None,
+                ReadTimeout = (int)Delay.TotalMilliseconds,
+            };
             serialPort.Open();
-            using var master = new ModbusFactory().CreateRtuMaster(serialPort);
+            using var master = new ConcurrentModbusMaster(new ModbusFactory().CreateRtuMaster(serialPort), TimeSpan.FromMilliseconds(40));
             var timestamp = DateTime.UtcNow;
-            var registers = await master.ReadInputRegistersAsync(1, 0, 80);
+            var registers = await master.ReadInputRegistersAsync(1, 0, 80, 125, cancellationToken);
 
-            var appendSerie = (int offset, string name, string tag)
-                =>
+            void AppendSerie(int offset, string name, string tag)
             {
                 float value = BitConverter.Int32BitsToSingle(registers[offset] << 16 | registers[offset + 1]);
                 double rounded = Math.Round(value, 3);
                 _logger.LogDebug("Got {value} {tag} for {SeriesName}", rounded, tag, name);
                 session.TimeSeriesFor(doc, name)
                   .Append(timestamp, rounded, tag);
-            };
+            }
 
-            appendSerie(0, "Voltage", "V");
-            appendSerie(6, "Current", "A");
-            appendSerie(12, "Power", "W");
-            appendSerie(18, "Apparent Power", "VAr");
-            appendSerie(30, "Power factor", null);
-            appendSerie(70, "GridFrequency", "Hz");
-            appendSerie(72, "Energy", "kWh");
-            await session.SaveChangesAsync();
+            AppendSerie(0, "Voltage", "V");
+            AppendSerie(6, "Current", "A");
+            AppendSerie(12, "Power", "W");
+            AppendSerie(18, "Apparent Power", "VAr");
+            AppendSerie(30, "Power factor", null);
+            AppendSerie(70, "GridFrequency", "Hz");
+            AppendSerie(72, "Energy", "kWh");
+            await session.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Done");
         }
 
