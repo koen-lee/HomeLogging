@@ -3,15 +3,21 @@ using NModbus;
 using NModbus.Serial;
 using Raven.Client.Documents;
 using System;
+using System.Collections.Generic;
 using System.IO.Ports;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using NModbus.Device;
+using Raven.Client.Documents.Linq;
+using Raven.Client.Documents.Session;
 
 namespace TelemetryToRaven.Sdm
 {
     public class SdmLogger : LoggerService
     {
+        private const string ElectricityMeter = "Sdm series electricity meter";
+
         public SdmLogger(ILogger<SdmLogger> logger, IDocumentStore database) : base(logger, database)
         {
         }
@@ -23,54 +29,113 @@ namespace TelemetryToRaven.Sdm
 
             using var session = _store.OpenAsyncSession();
 
-            string documentId = "meters/ElectricityHeatpump";
-            var doc = await session.LoadAsync<Meter>(documentId, cancellationToken);
-            if (doc == null)
+            var meters = await GetSdmMeters(cancellationToken, session);
+
+
+            using var serialPort = new SerialPort(port);
+            using var master = CreateModbusMaster(serialPort);
+
+            foreach (var doc in meters)
             {
-                doc = await CreateNewDocument();
+                try
+                {
+                    await ReadMeter(cancellationToken, doc, master, session);
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError(e, $"Failure while reading device {doc.Id}");
+                }
             }
 
-            doc.VendorInfo = "Sdm series electricity meter";
-            doc.Medium = "Electricity for heat pump";
-            await session.StoreAsync(doc, documentId, cancellationToken);
-
-            using SerialPort serialPort = new SerialPort(port)
-            {
-                BaudRate = 2400,
-                Parity = Parity.None,
-                ReadTimeout = (int)Delay.TotalMilliseconds,
-            };
-            serialPort.Open();
-            using var master = new ConcurrentModbusMaster(new ModbusFactory().CreateRtuMaster(serialPort), TimeSpan.FromMilliseconds(40));
-            var timestamp = DateTime.UtcNow;
-            var registers = await master.ReadInputRegistersAsync(1, 0, 80, 125, cancellationToken);
-
-            void AppendSerie(int offset, string name, string tag)
-            {
-                float value = BitConverter.Int32BitsToSingle(registers[offset] << 16 | registers[offset + 1]);
-                double rounded = Math.Round(value, 3);
-                _logger.LogDebug("Got {value} {tag} for {SeriesName}", rounded, tag, name);
-                session.TimeSeriesFor(doc, name)
-                  .Append(timestamp, rounded, tag);
-            }
-
-            AppendSerie(0, "Voltage", "V");
-            AppendSerie(6, "Current", "A");
-            AppendSerie(12, "Power", "W");
-            AppendSerie(18, "Apparent Power", "VAr");
-            AppendSerie(30, "Power factor", null);
-            AppendSerie(70, "GridFrequency", "Hz");
-            AppendSerie(72, "Energy", "kWh");
-            await session.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Done");
         }
 
-        private async Task<Meter> CreateNewDocument()
+        private ConcurrentModbusMaster CreateModbusMaster(SerialPort serialPort)
         {
-            Meter doc = new Meter();
+            serialPort.BaudRate = 2400;
+            serialPort.Parity = Parity.None;
+            serialPort.ReadTimeout = (int)Delay.TotalMilliseconds;
+            serialPort.Open();
+            var master =
+                new ConcurrentModbusMaster(new ModbusFactory().CreateRtuMaster(serialPort), TimeSpan.FromMilliseconds(40));
+            return master;
+        }
+
+        private async Task<List<SdmMeter>> GetSdmMeters(CancellationToken cancellationToken, IAsyncDocumentSession session)
+        {
+            var meters = session.Query<SdmMeter>(collectionName: "Meters")
+                .Where(m => m.VendorInfo == ElectricityMeter)
+                .ToList();
+
+            if (!meters.Any())
+            {
+                var doc = await CreateNewDocument();
+                await session.StoreAsync(doc, cancellationToken);
+                meters.Add(doc);
+            }
+
+            return meters;
+        }
+
+        private async Task ReadMeter(CancellationToken cancellationToken, SdmMeter doc, ConcurrentModbusMaster master,
+            IAsyncDocumentSession session)
+        {
+            _logger.LogInformation($"Reading meter: {doc.Id} address: {doc.ModbusAddress} registers: {doc.Registers.Length}");
+            var timestamp = DateTime.UtcNow;
+
+            foreach (var definition in doc.Registers)
+            {
+                var data = await master.ReadInputRegistersAsync(doc.ModbusAddress, definition.Register, 2, 125,
+                    cancellationToken);
+                float value = BitConverter.Int32BitsToSingle(data[0] << 16 | data[1]);
+                double rounded = Math.Round(value, 4);
+                _logger.LogDebug("Got {value} {tag} for {SeriesName}", rounded, definition.Tag, definition.SeriesName);
+                session.TimeSeriesFor(doc, definition.SeriesName)
+                    .Append(timestamp, rounded, definition.Tag);
+            }
+
+            await session.SaveChangesAsync(cancellationToken);
+        }
+
+
+        private async Task<SdmMeter> CreateNewDocument()
+        {
             await _store.TimeSeries.RegisterAsync<Meter>("Voltage", new[] {
                     "Voltage [V]" });
+            var doc = new SdmMeter
+            {
+                VendorInfo = ElectricityMeter,
+                Medium = "Electricity for heat pump",
+                ModbusAddress = 1,
+                Registers = new SdmMeter.RegisterDefinition[]
+                {
+                    new() { Register = 12, SeriesName = "Power", Tag = "W" },
+                    new() { Register = 72, SeriesName = "Energy", Tag = "kWh" },
+                }
+            };
+
             return doc;
+        }
+
+
+    }
+
+    public class SdmMeter : Meter
+    {
+        private RegisterDefinition[] _registers;
+        public byte ModbusAddress { get; set; }
+
+        public RegisterDefinition[] Registers
+        {
+            get => _registers ??= Array.Empty<RegisterDefinition>();
+            set => _registers = value;
+        }
+
+        public class RegisterDefinition
+        {
+            public ushort Register { get; set; }
+            public string SeriesName { get; set; }
+            public string Tag { get; set; }
         }
     }
 }
