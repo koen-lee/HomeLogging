@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\TelemetryToRaven\TelemetryToRaven.csproj" />
+    <ProjectReference Include="..\TelemetryToRaven\TelemetryToRaven.csproj" />
   </ItemGroup>
 
 </Project>
