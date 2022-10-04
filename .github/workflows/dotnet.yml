@@ -24,4 +24,6 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Package
-      run: dotnet deb -r linux-arm
+      run: |
+        dotnet tool install --global dotnet-deb
+        dotnet deb -r linux-arm
