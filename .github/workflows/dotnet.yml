@@ -24,6 +24,7 @@ jobs:
     - name: Test
       run: dotnet test --no-build --verbosity normal
     - name: Package
+      working-directory: ./TelemetryToRaven
       run: |
         dotnet tool install --global dotnet-deb
         dotnet deb -r linux-arm
