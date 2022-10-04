@@ -28,3 +28,9 @@ jobs:
       run: |
         dotnet tool install --global dotnet-deb
         dotnet deb -r linux-arm
+    - name: Upload artifact
+      uses: actions/upload-artifact@v3
+      with:
+        name: deb package
+        path: ./**/*.deb
+        if-no-files-found: error
