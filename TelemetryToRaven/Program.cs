@@ -3,8 +3,10 @@ using Microsoft.Extensions.Hosting;
 using Raven.Client.Documents;
 using System;
 using System.Threading.Tasks;
+using Raven.Client.Documents.Conventions;
 using TelemetryToRaven;
 using TelemetryToRaven.Goodwe;
+using TelemetryToRaven.Kasa;
 using TelemetryToRaven.Mbus;
 using TelemetryToRaven.P1;
 using TelemetryToRaven.Sdm;
@@ -31,6 +33,7 @@ namespace TelemetryToRaven
                                 AddHostedServiceWhenEnabled<SdmLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<WeewxLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<EbusRunExtender>(services, enabledServices);
+                                AddHostedServiceWhenEnabled<KasaLogger>(services, enabledServices);
                                 services.AddSingleton(CreateDocumentStore(serverurl, database));
                             })
                             .Build();
@@ -52,6 +55,13 @@ namespace TelemetryToRaven
             {
                 Database = database,
                 Urls = new[] { serverUrl }
+            };
+            store.Conventions.FindCollectionName = type =>
+            {
+                if (typeof(Meter).IsAssignableFrom(type))
+                    return "Meters";
+
+                return DocumentConventions.DefaultGetCollectionName(type);
             };
             store.Initialize();
             return store;

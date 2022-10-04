@@ -62,9 +62,9 @@ namespace TelemetryToRaven.Sdm
         private async Task<List<SdmMeter>> GetSdmMeters(CancellationToken cancellationToken,
             IAsyncDocumentSession session)
         {
-            var meters = session.Query<SdmMeter>(collectionName: "Meters")
+            var meters = await session.Query<SdmMeter>(collectionName: "Meters")
                 .Where(m => m.VendorInfo == ElectricityMeter)
-                .ToList();
+                .ToListAsync(cancellationToken);
 
             if (!meters.Any())
             {
