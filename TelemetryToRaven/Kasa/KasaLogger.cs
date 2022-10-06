@@ -29,6 +29,11 @@ namespace TelemetryToRaven.Kasa
         {
             using var session = _store.OpenAsyncSession();
             var plug = await GetPlug(cancellationToken, meter);
+            if (plug == null)
+            {
+                _logger.LogWarning($"Plug {meter.Id} {meter.Mac} not found");
+                return;
+            }
             await session.StoreAsync(meter, cancellationToken);
             var response = await plug.GetPowerReading(cancellationToken);
             session.TimeSeriesFor(meter, "PowerEnergy").Append(DateTimeOffset.Now.UtcDateTime,
@@ -50,7 +55,10 @@ namespace TelemetryToRaven.Kasa
             catch (Exception e)
             {
                 _logger.LogWarning(e, "Unexpected response, starting discovery");
-                meter.IpAddress = await BroadcastAndGetByMac(meter.Id, meter.IpAddress);
+                string newIp = await BroadcastAndGetByMac(meter.Id, meter.IpAddress);
+                if (newIp == null)
+                    return null;
+                meter.IpAddress = newIp;
                 plug = new HS110Device(meter.IpAddress);
             }
             return plug;
@@ -74,7 +82,7 @@ namespace TelemetryToRaven.Kasa
                           where ping.IsCompletedSuccessfully
                           select ping.Result;
 
-            return results.Single(r =>
+            return results.SingleOrDefault(r =>
                     mac.Equals(r.mac, StringComparison.InvariantCultureIgnoreCase))
                 .host;
         }
@@ -87,7 +95,7 @@ namespace TelemetryToRaven.Kasa
                 var device = new HS110Device(host);
                 var cancelOnTimeout = new CancellationTokenSource(timeout);
                 var info = await device.GetInfoReading(cancelOnTimeout.Token);
-                _logger.LogInformation($"Host {host} : {info}");
+                _logger.LogInformation($"Host {host} : {info.Mac} {info.Alias}");
                 return (host, info.Mac);
             }
             catch (Exception)
