@@ -55,7 +55,7 @@ namespace TelemetryToRaven.Kasa
             catch (Exception e)
             {
                 _logger.LogWarning(e, "Unexpected response, starting discovery");
-                string newIp = await BroadcastAndGetByMac(meter.Id, meter.IpAddress);
+                string newIp = await BroadcastAndGetByMac(meter.Mac, meter.IpAddress);
                 if (newIp == null)
                     return null;
                 meter.IpAddress = newIp;
