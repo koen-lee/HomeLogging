@@ -127,7 +127,7 @@ namespace TelemetryToRaven.P1
             doc.VendorInfo = "DSMR5";
             doc.Medium = "Electricity";
             await session.StoreAsync(doc, documentId);
-            var timestamp = (telegram.TimeStamp ?? DateTimeOffset.UtcNow).UtcDateTime;
+            var timestamp = DateTimeOffset.UtcNow.UtcDateTime;
             session.TimeSeriesFor(doc, "Power").Append(timestamp,
                 1000 * (double)(telegram.PowerDelivered.Value - telegram.PowerReturned.Value),
                 "W");
