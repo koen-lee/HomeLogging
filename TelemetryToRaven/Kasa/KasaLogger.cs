@@ -7,12 +7,15 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Raven.Client.Documents.Queries;
 using Raven.Client.Documents.Session;
 
 namespace TelemetryToRaven.Kasa
 {
     public class KasaLogger : LoggerService
     {
+        const string PowerEnergyTsName = "PowerEnergy";
+
         public KasaLogger(ILogger<KasaLogger> logger, IDocumentStore database) : base(logger, database)
         {
         }
@@ -34,11 +37,33 @@ namespace TelemetryToRaven.Kasa
                 _logger.LogWarning($"Plug {meter.Id} {meter.Mac} not found");
                 return;
             }
-            await session.StoreAsync(meter, cancellationToken);
             var response = await plug.GetPowerReading(cancellationToken);
-            session.TimeSeriesFor(meter, "PowerEnergy").Append(DateTimeOffset.Now.UtcDateTime,
-                new[] { response.CurrentPowerInW, response.CumulativeEnergyInkWh }, "W;kWh");
+            await GetOrUpdateEnergyOffset(cancellationToken, meter, response, session);
+            await session.StoreAsync(meter, cancellationToken);
+            session.TimeSeriesFor(meter, PowerEnergyTsName).Append(DateTimeOffset.Now.UtcDateTime,
+                new[] { response.CurrentPowerInW, response.CumulativeEnergyInkWh + meter.EnergyOffset, response.CumulativeEnergyInkWh }, "W;kWh");
             await session.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task GetOrUpdateEnergyOffset(CancellationToken cancellationToken, KasaDevice meter,
+            PowerReading powerReading,
+            IAsyncDocumentSession session)
+        {
+            var lastItem = await session.Query<Meter>().Where(m => m.Id == meter.Id)
+                .Select(c => RavenQuery.TimeSeries(c, PowerEnergyTsName)
+                    .Select(ts => ts.Last()).ToList())
+                .SingleOrDefaultAsync(token: cancellationToken);
+            if (lastItem == default || lastItem.Results.Length == 0)
+            {
+                _logger.LogDebug("No historical data");
+            }
+            var lastEnergyReading = lastItem.Results[0].Last[1];
+            _logger.LogDebug($"Last reading was {lastEnergyReading}, current is {powerReading.CumulativeEnergyInkWh}");
+            if (powerReading.CumulativeEnergyInkWh < lastEnergyReading)
+            {
+                _logger.LogInformation($"New offset: {lastEnergyReading}");
+                meter.EnergyOffset = lastEnergyReading;
+            }
         }
 
         private async Task<HS110Device> GetPlug(CancellationToken cancellationToken, KasaDevice meter)
@@ -143,5 +168,6 @@ namespace TelemetryToRaven.Kasa
     {
         public string IpAddress { get; set; }
         public string Mac { get; set; }
+        public double EnergyOffset { get; set; }
     }
 }
