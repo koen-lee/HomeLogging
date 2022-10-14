@@ -60,10 +60,10 @@ namespace TelemetryToRaven.Kasa
             }
             var lastEnergyReading = lastItem.Results[0].Last[1];
             _logger.LogDebug($"Last reading was {lastEnergyReading - meter.EnergyOffset}, current is {powerReading.CumulativeEnergyInkWh}");
-            if (powerReading.CumulativeEnergyInkWh < (lastEnergyReading - meter.EnergyOffset))
+            if (powerReading.CumulativeEnergyInkWh < (lastEnergyReading - meter.EnergyOffset - 0.01 /*epsilon for double comparison/rounding error*/))
             {
                 _logger.LogInformation($"New offset: {lastEnergyReading}");
-                meter.EnergyOffset = lastEnergyReading;
+                meter.EnergyOffset = Math.Round(lastEnergyReading, 4);
             }
         }
 
