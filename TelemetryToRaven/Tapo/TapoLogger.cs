@@ -50,6 +50,7 @@ namespace TelemetryToRaven.Tapo
                 currentEnergyReading }, "W;kWh");
             await session.SaveChangesAsync(cancellationToken);
         }
+
         private async Task GetOrUpdateEnergyOffset(CancellationToken cancellationToken, TapoDevice meter,
         double currentEnergyInkWh,
             IAsyncDocumentSession session)
@@ -155,11 +156,11 @@ namespace TelemetryToRaven.Tapo
         {
             var doc = new TapoDevice
             {
-                Id = "TestKasaMeter",
+                Id = "TestTapoMeter",
                 Mac = "AA:BB:12:34:45",
                 IpAddress = "192.168.2.4",
                 VendorInfo = TapoMeter,
-                Medium = "Electricity for heat pump water heater"
+                Medium = "Electricity for fridge"
             };
 
             return doc;
