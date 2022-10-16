@@ -3,11 +3,12 @@
     <TargetFramework>net6.0</TargetFramework>
 	<AssemblyName>telemetryservice</AssemblyName>
 	<GenerateDocumentationFile>false</GenerateDocumentationFile>
+	  <LangVersion>10</LangVersion>
 	<runtimeIdentifiers>linux-arm</runtimeIdentifiers>
 	<Authors>KPvL</Authors>
 	<Company></Company>
 	<Product>Local Telemetry To RavenDB</Product>
-	<Version>1.16</Version>
+	<Version>1.17</Version>
 	<OutputType>Exe</OutputType>
 	<InstallService>true</InstallService>
     <UserSecretsId>dotnet-TelemetryToRaven-A1067D0E-67C3-4C10-B8EC-8DDECC3AF077</UserSecretsId>
