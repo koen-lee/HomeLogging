@@ -164,7 +164,7 @@ namespace TelemetryToRaven.Kasa
         private const string KasaMeter = "TP Link Kasa HS110 plug";
     }
 
-    public class KasaDevice : Meter
+    public record KasaDevice : Meter
     {
         public string IpAddress { get; set; }
         public string Mac { get; set; }

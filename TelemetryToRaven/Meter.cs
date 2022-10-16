@@ -1,6 +1,6 @@
 ﻿namespace TelemetryToRaven
 {
-    public class Meter
+    public record Meter
     {
         public string Id { get; set; }
         public string VendorInfo { get; set; }
