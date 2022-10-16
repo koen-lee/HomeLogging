@@ -4,13 +4,13 @@ using Raven.Client.Documents;
 using System;
 using System.Threading.Tasks;
 using Raven.Client.Documents.Conventions;
-using TelemetryToRaven;
 using TelemetryToRaven.Goodwe;
 using TelemetryToRaven.Kasa;
 using TelemetryToRaven.Mbus;
 using TelemetryToRaven.P1;
 using TelemetryToRaven.Sdm;
 using TelemetryToRaven.Weewx;
+using TelemetryToRaven.Tapo;
 
 namespace TelemetryToRaven
 {
@@ -34,6 +34,7 @@ namespace TelemetryToRaven
                                 AddHostedServiceWhenEnabled<WeewxLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<EbusRunExtender>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<KasaLogger>(services, enabledServices);
+                                AddHostedServiceWhenEnabled<TapoLogger>(services, enabledServices);
                                 services.AddSingleton(CreateDocumentStore(serverurl, database));
                             })
                             .Build();
