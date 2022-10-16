@@ -125,17 +125,10 @@ namespace TelemetryToRaven.Tapo
         {
             var result = RunScript("poll_tapo.py", $"{device.IpAddress} {device.UserName} {device.Password}");
 
-            try
-            {
-                var parsed = JsonSerializer.Deserialize<TapoUtilResponse>(result);
-                _logger.LogInformation($"Got {parsed.device_info.Model} {parsed.device_info.NickDecoded}" +
-                    $" {parsed.device_info.Ip} {parsed.device_info.Mac}");
-                return parsed;
-            }
-            catch (Exception)
-            {
-                return null;
-            }
+            var parsed = JsonSerializer.Deserialize<TapoUtilResponse>(result);
+            _logger.LogInformation($"Got {parsed.device_info.Model} {parsed.device_info.NickDecoded}" +
+                $" {parsed.device_info.Ip} {parsed.device_info.Mac}");
+            return parsed;
         }
 
         private async Task<List<TapoDevice>> GetTapoMeters(CancellationToken cancellationToken,
