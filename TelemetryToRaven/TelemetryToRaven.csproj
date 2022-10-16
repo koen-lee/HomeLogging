@@ -18,8 +18,13 @@
 	  <None Remove="Deploy\ebus.sh" />
 	  <None Remove="Deploy\mbus.sh" />
 	  <None Remove="Deploy\writeminflowtemp.sh" />
+	  <None Remove="Deploy\poll_tapo.py" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Deploy\poll_tapo.py" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755">
+		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		<LinuxPath>/etc/telemetry/poll_tapo.py</LinuxPath>		
+    </Content> 
     <Content Include="Deploy\writeminflowtemp.sh" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755"> 
       <LinuxPath>/etc/telemetry/writeminflowtemp.sh</LinuxPath>
     </Content>
