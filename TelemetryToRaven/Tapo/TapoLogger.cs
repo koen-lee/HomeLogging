@@ -12,6 +12,7 @@ using System.Buffers.Text;
 using System.Text;
 using Raven.Client.Documents.Queries;
 using System.Text.Json;
+using System.Text.Json.Nodes;
 
 namespace TelemetryToRaven.Tapo
 {
@@ -41,11 +42,11 @@ namespace TelemetryToRaven.Tapo
                 return;
             }
 
-            var currentEnergyReading = plug.energy_usage.month_energy / 1000.0;
+            var currentEnergyReading = plug.MonthEnergy / 1000.0;
             await GetOrUpdateEnergyOffset(cancellationToken, meter, currentEnergyReading, session);
             await session.StoreAsync(meter, cancellationToken);
             session.TimeSeriesFor(meter, PowerEnergyTsName).Append(DateTimeOffset.Now.UtcDateTime, new[] {
-                plug.energy_usage.current_power / 1000,
+                plug.CurrentPower / 1000,
                 currentEnergyReading + meter.EnergyOffset,
                 currentEnergyReading }, "W;kWh");
             await session.SaveChangesAsync(cancellationToken);
@@ -62,6 +63,7 @@ namespace TelemetryToRaven.Tapo
             if (lastItem == default || lastItem.Results.Length == 0)
             {
                 _logger.LogDebug("No historical data");
+                return;
             }
             var lastEnergyReading = Math.Round(lastItem.Results[0].Last[1], 3);
             _logger.LogDebug($"Last reading was {lastEnergyReading}, current is {currentEnergyInkWh}");
@@ -77,20 +79,20 @@ namespace TelemetryToRaven.Tapo
             try
             {
                 var info = await GetInfo(meter);
-                if (!MacEqual(meter.Mac, info.device_info.Mac))
+                if (!MacEqual(meter.Mac, info.Mac))
                 {
-                    throw new InvalidDataException($"Got MAC {info.device_info.Mac}, expected {meter.Mac}");
+                    throw new InvalidDataException($"Got MAC {info.Mac}, expected {meter.Mac}");
                 }
                 return info;
             }
             catch (Exception e)
             {
                 _logger.LogWarning(e, "Unexpected response, starting discovery");
-                var foundResponse = await BroadcastAndGetByMac(meter);
-                if (foundResponse == null)
-                    return null;
-                meter.IpAddress = foundResponse.device_info.Ip;
-                return foundResponse;
+                //var foundResponse = await BroadcastAndGetByMac(meter);
+                //if (foundResponse == null)
+                return null;
+                //meter.IpAddress = foundResponse.device_info.Ip;
+                //return foundResponse;
             }
         }
 
@@ -116,7 +118,7 @@ namespace TelemetryToRaven.Tapo
                           where ping.IsCompletedSuccessfully
                           select ping.Result;
 
-            return results.SingleOrDefault(r => MacEqual(mac, r.device_info.Mac));
+            return results.SingleOrDefault(r => MacEqual(mac, r.Mac));
         }
 
         private bool MacEqual(string mac1, string mac2)
@@ -124,14 +126,14 @@ namespace TelemetryToRaven.Tapo
             return mac1.Replace('-', ':').Equals(mac2.Replace('-', ':'), StringComparison.InvariantCultureIgnoreCase);
         }
 
-        private async Task<TapoUtilResponse> GetInfo(TapoDevice device)
+        private Task<TapoUtilResponse> GetInfo(TapoDevice device)
         {
             var result = RunScript("poll_tapo.py", $"{device.IpAddress} {device.UserName} {device.Password}");
-
-            var parsed = JsonSerializer.Deserialize<TapoUtilResponse>(result);
-            _logger.LogInformation($"Got {parsed.device_info.Model} {parsed.device_info.NickDecoded}" +
-                $" {parsed.device_info.Ip} {parsed.device_info.Mac}");
-            return parsed;
+            var parsed = JsonSerializer.Deserialize<JsonObject>(result);
+            var response = new TapoUtilResponse(parsed);
+            _logger.LogInformation($"Got {response.Model} {response.Nick}" +
+                $" {response.Ip} {response.Mac}");
+            return Task.FromResult(response);
         }
 
         private async Task<List<TapoDevice>> GetTapoMeters(CancellationToken cancellationToken,
@@ -180,29 +182,31 @@ namespace TelemetryToRaven.Tapo
 
     public class TapoUtilResponse
     {
-        public DeviceInfo device_info;
-        public EnergyUsage energy_usage;
-
-        public class DeviceInfo
+        public TapoUtilResponse(JsonNode parsed)
         {
-            public string Model;
-            public string Ip;
-            public string Mac;
-            public string NickName;
-            public string NickDecoded
+            Model = parsed!["device_info"]!["result"]!["model"]?.GetValue<string>();
+            Ip = parsed!["device_info"]!["result"]!["ip"]?.GetValue<string>();
+            Mac = parsed!["device_info"]!["result"]!["mac"]?.GetValue<string>();
+            NickRaw = parsed!["device_info"]!["result"]!["nickname"]?.GetValue<string>();
+
+            CurrentPower = parsed!["energy_usage"]!["result"]!["current_power"]?.GetValue<double>() ?? double.NaN;
+            MonthEnergy = parsed!["energy_usage"]!["result"]!["month_energy"]?.GetValue<double>() ?? double.NaN;
+        }
+
+        public readonly string Model;
+        public readonly string Ip;
+        public readonly string Mac;
+        public readonly string NickRaw;
+        public string Nick
+        {
+            get
             {
-                get
-                {
-                    byte[] buffer = new byte[1024];
-                    Base64.DecodeFromUtf8(Encoding.UTF8.GetBytes(NickName), buffer, out _, out var length);
-                    return Encoding.UTF8.GetString(buffer[..length]);
-                }
+                byte[] buffer = new byte[1024];
+                Base64.DecodeFromUtf8(Encoding.UTF8.GetBytes(NickRaw), buffer, out _, out var length);
+                return Encoding.UTF8.GetString(buffer[..length]);
             }
         }
-        public class EnergyUsage
-        {
-            public double current_power;
-            public double month_energy;
-        }
+        public readonly double CurrentPower;
+        public readonly double MonthEnergy;
     }
 }
