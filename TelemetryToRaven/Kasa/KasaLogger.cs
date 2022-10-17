@@ -139,7 +139,7 @@ namespace TelemetryToRaven.Kasa
 
             if (!meters.Any())
             {
-                var doc = await CreateNewDocument();
+                var doc = CreateNewDocument();
                 await session.StoreAsync(doc, cancellationToken);
                 await session.SaveChangesAsync(cancellationToken);
                 meters.Add(doc);
@@ -148,7 +148,7 @@ namespace TelemetryToRaven.Kasa
             return meters;
         }
 
-        private async Task<KasaDevice> CreateNewDocument()
+        private KasaDevice CreateNewDocument()
         {
             var doc = new KasaDevice
             {
