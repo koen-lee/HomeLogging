@@ -94,7 +94,7 @@ namespace TelemetryToRaven
         }
     }
 
-    public class EbusMeter : Meter
+    public record EbusMeter : Meter
     {
         public bool ExtendRuns { get; set; }
         public double MinimumFlowTemperature { get; set; }

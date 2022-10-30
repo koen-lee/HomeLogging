@@ -121,7 +121,7 @@ namespace TelemetryToRaven.Sdm
         }
     }
 
-    public class SdmMeter : Meter
+    public record SdmMeter : Meter
     {
         private RegisterDefinition[] _registers;
         public byte ModbusAddress { get; init; }
