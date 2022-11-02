@@ -38,7 +38,7 @@ namespace TelemetryToRaven
 
             var GetLast = (string timeseries, out double value) =>
             {
-                var entries = session.TimeSeriesFor(documentId, timeseries).GetAsync(DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(2)), token: cancellationToken).Result;
+                var entries = session.TimeSeriesFor(documentId, timeseries).GetAsync(DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(1.5)), token: cancellationToken).Result;
                 if (entries.Any())
                 {
                     value = entries.Last().Value;
@@ -67,7 +67,7 @@ namespace TelemetryToRaven
                 _logger.LogInformation("Reset temperature, it was lower than the configured minimum.");
                 SetMinimumFlowTemp(settings.MinimumFlowTemperature);
             }
-            else if (desiredFlowTemp < currentMinimum && currentMinimum > settings.MinimumFlowTemperature)
+            else if (desiredFlowTemp < settings.MinimumFlowTemperature && currentMinimum > settings.MinimumFlowTemperature)
             {
                 _logger.LogInformation("Reset temperature, it was higher and there is no heat requested.");
                 SetMinimumFlowTemp(settings.MinimumFlowTemperature);
@@ -79,7 +79,7 @@ namespace TelemetryToRaven
             {
                 // extend the run by setting the minimum to the actual flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Extend the run");
-                SetMinimumFlowTemp(actualFlowTemp);
+                SetMinimumFlowTemp(actualFlowTemp + 0.5);
             }
             else
             {
