@@ -28,8 +28,25 @@ namespace TelemetryToRaven.Tapo
         {
             using var session = _store.OpenAsyncSession();
             var meters = await GetTapoMeters(cancellationToken, session);
+            await DiscoverMeters(meters);
             var tasks = meters.Select(meter => RegisterPlug(cancellationToken, meter)).ToList();
             await Task.WhenAll(tasks);
+            await session.SaveChangesAsync(cancellationToken);
+        }
+
+        private async Task DiscoverMeters(List<TapoDevice> meters)
+        {
+            var unavailableMeter = meters.Where(m => !m.LastPollSuccessful).FirstOrDefault();
+            if (unavailableMeter != null)
+            {
+                var discoveredMeters = await BroadcastWithPrototype(unavailableMeter);
+                foreach (var newmeter in discoveredMeters)
+                    foreach (var meter in meters)
+                    {
+                        if (MacEqual(meter.Mac, newmeter.Mac))
+                            meter.IpAddress = newmeter.Ip;
+                    }
+            }
         }
 
         private async Task RegisterPlug(CancellationToken cancellationToken, TapoDevice meter)
@@ -39,16 +56,18 @@ namespace TelemetryToRaven.Tapo
             if (plug == null)
             {
                 _logger.LogWarning($"Plug {meter.Id} {meter.Mac} not found");
-                return;
             }
-
-            var currentEnergyReading = plug.MonthEnergy / 1000.0;
-            await GetOrUpdateEnergyOffset(cancellationToken, meter, currentEnergyReading, session);
-            await session.StoreAsync(meter, cancellationToken);
-            session.TimeSeriesFor(meter, PowerEnergyTsName).Append(DateTimeOffset.Now.UtcDateTime, new[] {
-                plug.CurrentPower / 1000,
-                currentEnergyReading + meter.EnergyOffset,
-                currentEnergyReading }, "W;kWh");
+            else
+            {
+                var currentEnergyReading = plug.MonthEnergy / 1000.0;
+                await GetOrUpdateEnergyOffset(cancellationToken, meter, currentEnergyReading, session);
+                await session.StoreAsync(meter, cancellationToken);
+                session.TimeSeriesFor(meter, PowerEnergyTsName).Append(DateTimeOffset.Now.UtcDateTime, new[] {
+                    plug.CurrentPower / 1000.0,
+                    currentEnergyReading + meter.EnergyOffset,
+                    currentEnergyReading
+                }, "W;kWh");
+            }
             await session.SaveChangesAsync(cancellationToken);
         }
 
@@ -67,7 +86,7 @@ namespace TelemetryToRaven.Tapo
             }
             var lastEnergyReading = Math.Round(lastItem.Results[0].Last[1], 3);
             _logger.LogDebug($"Last reading was {lastEnergyReading}, current is {currentEnergyInkWh}");
-            if (Math.Round(currentEnergyInkWh, 3) < lastEnergyReading)
+            if (Math.Round(currentEnergyInkWh, 1) < Math.Round(lastEnergyReading, 1))
             {
                 _logger.LogInformation($"New offset: {lastEnergyReading}");
                 meter.EnergyOffset = lastEnergyReading;
@@ -83,20 +102,19 @@ namespace TelemetryToRaven.Tapo
                 {
                     throw new InvalidDataException($"Got MAC {info.Mac}, expected {meter.Mac}");
                 }
+                meter.LastPollSuccessful = true;
+
                 return info;
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Unexpected response, starting discovery");
-                //var foundResponse = await BroadcastAndGetByMac(meter);
-                //if (foundResponse == null)
+                _logger.LogWarning(e, "Unexpected response, starting discovery next round");
+                meter.LastPollSuccessful = false;
                 return null;
-                //meter.IpAddress = foundResponse.device_info.Ip;
-                //return foundResponse;
             }
         }
 
-        private async Task<TapoUtilResponse> BroadcastAndGetByMac(TapoDevice device)
+        private async Task<IList<TapoUtilResponse>> BroadcastWithPrototype(TapoDevice device)
         {
             // Tapo has Windows style mac, hyphen separated
             var mac = device.Mac.Replace(":", "-").ToUpper();
@@ -118,7 +136,7 @@ namespace TelemetryToRaven.Tapo
                           where ping.IsCompletedSuccessfully
                           select ping.Result;
 
-            return results.SingleOrDefault(r => MacEqual(mac, r.Mac));
+            return results.ToList();
         }
 
         private bool MacEqual(string mac1, string mac2)
@@ -128,12 +146,15 @@ namespace TelemetryToRaven.Tapo
 
         private Task<TapoUtilResponse> GetInfo(TapoDevice device)
         {
-            var result = RunScript("poll_tapo.py", $"{device.IpAddress} {device.UserName} {device.Password}");
-            var parsed = JsonSerializer.Deserialize<JsonObject>(result);
-            var response = new TapoUtilResponse(parsed);
-            _logger.LogInformation($"Got {response.Model} {response.Nick}" +
-                $" {response.Ip} {response.Mac}");
-            return Task.FromResult(response);
+            return Task.Run(() =>
+            {
+                var result = RunScript("poll_tapo.py", $"{device.IpAddress} {device.UserName} {device.Password}");
+                var parsed = JsonSerializer.Deserialize<JsonObject>(result);
+                var response = new TapoUtilResponse(parsed);
+                _logger.LogInformation($"Got {response.Model} {response.Nick}" +
+                    $" {response.Ip} {response.Mac}");
+                return response;
+            });
         }
 
         private async Task<List<TapoDevice>> GetTapoMeters(CancellationToken cancellationToken,
@@ -178,6 +199,7 @@ namespace TelemetryToRaven.Tapo
         public double EnergyOffset { get; internal set; }
         public object UserName { get; internal set; }
         public object Password { get; internal set; }
+        public bool LastPollSuccessful { get; internal set; }
     }
 
     public class TapoUtilResponse
