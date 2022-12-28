@@ -25,7 +25,7 @@ namespace TelemetryToRaven.Tapo
         {
             _httpClient = new HttpClient()
             {
-                Timeout = TimeSpan.FromSeconds(0.5),
+                Timeout = TimeSpan.FromSeconds(0.8),
             };
         }
 
@@ -34,8 +34,16 @@ namespace TelemetryToRaven.Tapo
             using var session = _store.OpenAsyncSession();
             var meters = await GetTapoMeters(cancellationToken, session);
             await DiscoverMeters(meters);
-            var tasks = meters.Select(meter => RegisterPlug(cancellationToken, meter)).ToList();
-            await Task.WhenAll(tasks);
+            var tasks = meters.Select(meter => Task.Run(() => RegisterPlug(cancellationToken, meter))).ToList();
+            try
+            {
+                await Task.WhenAll(tasks);
+            }
+            catch
+            {
+                foreach (var task in tasks.Where(t => t.Exception != null))
+                    _logger.LogWarning(task.Exception, "Registering plug failed");
+            }
             await session.SaveChangesAsync(cancellationToken);
         }
 
@@ -89,12 +97,12 @@ namespace TelemetryToRaven.Tapo
                 _logger.LogDebug("No historical data");
                 return;
             }
-            var lastEnergyReading = Math.Round(lastItem.Results[0].Last[1], 3);
+            var lastEnergyReading = Math.Round(lastItem.Results[0].Last[2], 3);
             _logger.LogDebug($"Last reading was {lastEnergyReading}, current is {currentEnergyInkWh}");
             if (Math.Round(currentEnergyInkWh, 1) < Math.Round(lastEnergyReading, 1))
             {
-                _logger.LogInformation($"New offset: {lastEnergyReading}");
-                meter.EnergyOffset = lastEnergyReading;
+                meter.EnergyOffset += lastEnergyReading;
+                _logger.LogInformation($"New offset: {meter.EnergyOffset}");
             }
         }
 
@@ -113,7 +121,7 @@ namespace TelemetryToRaven.Tapo
             }
             catch (Exception e)
             {
-                _logger.LogWarning(e, "Unexpected response, starting discovery next round");
+                _logger.LogWarning(e, $"Unexpected response for {meter.Id}, starting discovery next round");
                 meter.LastPollSuccessful = false;
                 return null;
             }
@@ -135,8 +143,11 @@ namespace TelemetryToRaven.Tapo
                     pings.Add(GetInfo(candidateDevice));
                 }
             }
-            await Task.WhenAll(pings);
-
+            try
+            {
+                await Task.WhenAll(pings);
+            }
+            catch { /* test result below */ }
             var results = from ping in pings
                           where ping.IsCompletedSuccessfully
                           select ping.Result;
