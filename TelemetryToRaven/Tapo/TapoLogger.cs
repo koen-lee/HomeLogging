@@ -13,6 +13,7 @@ using System.Text;
 using Raven.Client.Documents.Queries;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Net.Http;
 
 namespace TelemetryToRaven.Tapo
 {
@@ -22,6 +23,10 @@ namespace TelemetryToRaven.Tapo
 
         public TapoLogger(ILogger<TapoLogger> logger, IDocumentStore database) : base(logger, database)
         {
+            _httpClient = new HttpClient()
+            {
+                Timeout = TimeSpan.FromSeconds(0.5),
+            };
         }
 
         protected override async Task DoWork(CancellationToken cancellationToken)
@@ -144,17 +149,16 @@ namespace TelemetryToRaven.Tapo
             return mac1.Replace('-', ':').Equals(mac2.Replace('-', ':'), StringComparison.InvariantCultureIgnoreCase);
         }
 
-        private Task<TapoUtilResponse> GetInfo(TapoDevice device)
+        private async Task<TapoUtilResponse> GetInfo(TapoDevice device)
         {
-            return Task.Run(() =>
-            {
-                var result = RunScript("poll_tapo.py", $"{device.IpAddress} {device.UserName} {device.Password}");
-                var parsed = JsonSerializer.Deserialize<JsonObject>(result);
-                var response = new TapoUtilResponse(parsed);
-                _logger.LogInformation($"Got {response.Model} {response.Nick}" +
-                    $" {response.Ip} {response.Mac}");
-                return response;
-            });
+            var test = await _httpClient.GetAsync($"http://{device.IpAddress}/");
+            test.EnsureSuccessStatusCode();
+            var result = RunScript("poll_tapo.py", $"{device.IpAddress} {device.UserName} {device.Password}");
+            var parsed = JsonSerializer.Deserialize<JsonObject>(result);
+            var response = new TapoUtilResponse(parsed);
+            _logger.LogInformation($"Got {response.Model} {response.Nick}" +
+                $" {response.Ip} {response.Mac}");
+            return response;
         }
 
         private async Task<List<TapoDevice>> GetTapoMeters(CancellationToken cancellationToken,
@@ -190,6 +194,7 @@ namespace TelemetryToRaven.Tapo
         }
 
         private const string TapoMeter = "TP Link Tapo P115 Plug";
+        private readonly HttpClient _httpClient;
     }
 
     public record TapoDevice : Meter
