@@ -73,7 +73,7 @@ namespace TelemetryToRaven
                 SetMinimumFlowTemp(settings.MinimumFlowTemperature);
             }
             else if (actualFlowTemp > desiredFlowTemp &&
-                     modulation < 2 &&
+                     modulation <= settings.DesiredModulation + 1 &&
                      actualFlowTemp < settings.MaximumFlowTemperature &&
                      desiredFlowTemp >= settings.MinimumFlowTemperature)
             {
@@ -99,5 +99,6 @@ namespace TelemetryToRaven
         public bool ExtendRuns { get; set; }
         public double MinimumFlowTemperature { get; set; }
         public double MaximumFlowTemperature { get; set; }
+        public double DesiredModulation { get; set; }
     }
 }

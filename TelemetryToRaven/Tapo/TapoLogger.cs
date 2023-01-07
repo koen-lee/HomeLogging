@@ -102,7 +102,7 @@ namespace TelemetryToRaven.Tapo
             if (Math.Round(currentEnergyInkWh, 1) < Math.Round(lastEnergyReading, 1))
             {
                 meter.EnergyOffset += lastEnergyReading;
-                _logger.LogInformation($"New offset: {meter.EnergyOffset}");
+                _logger.LogInformation($"Last reading was {lastEnergyReading}, current is {currentEnergyInkWh}, new offset: {meter.EnergyOffset}");
             }
         }
 
