@@ -67,19 +67,36 @@ namespace TelemetryToRaven
                 _logger.LogInformation("Reset temperature, it was lower than the configured minimum.");
                 SetMinimumFlowTemp(settings.MinimumFlowTemperature);
             }
-            else if (desiredFlowTemp < settings.MinimumFlowTemperature && currentMinimum > settings.MinimumFlowTemperature)
+            else if (actualFlowTemp < settings.MinimumFlowTemperature && currentMinimum > settings.MinimumFlowTemperature)
             {
                 _logger.LogInformation("Reset temperature, it was higher and there is no heat requested.");
                 SetMinimumFlowTemp(settings.MinimumFlowTemperature);
             }
             else if (actualFlowTemp > desiredFlowTemp &&
-                     modulation <= settings.DesiredModulation + 1 &&
+                     modulation <= 1 &&
                      actualFlowTemp < settings.MaximumFlowTemperature &&
                      desiredFlowTemp >= settings.MinimumFlowTemperature)
             {
                 // extend the run by setting the minimum to the actual flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Extend the run");
+                SetMinimumFlowTemp(actualFlowTemp);
+            }
+            else if (actualFlowTemp <= desiredFlowTemp &&
+                     modulation < settings.DesiredModulation &&
+                     actualFlowTemp < settings.MaximumFlowTemperature &&
+                     desiredFlowTemp >= settings.MinimumFlowTemperature)
+            {
+                // increase modulation by increasing the actual flow temp, so the heatpump controls think all is well.
+                _logger.LogInformation("Increase modulation");
                 SetMinimumFlowTemp(actualFlowTemp + 0.5);
+            }
+            else if (actualFlowTemp >= desiredFlowTemp &&
+                     modulation > settings.DesiredModulation + 5 &&
+                     actualFlowTemp > settings.MinimumFlowTemperature)
+            {
+                // extend the run by setting the minimum to the actual flow temp, so the heatpump controls think all is well.
+                _logger.LogInformation("Decrease modulation");
+                SetMinimumFlowTemp(actualFlowTemp - 0.5);
             }
             else
             {
