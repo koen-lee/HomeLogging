@@ -35,7 +35,8 @@ namespace TelemetryTests
         [Theory]
         [InlineData(9, 24, 25, 25, 25.5)]
         [InlineData(20, 26, 26, 26, 25.5)]
-        [InlineData(5, 30, 30, 30, double.NaN)] 
+        [InlineData(5, 30, 30, 30, double.NaN)]
+        [InlineData(20, 25, 26, 26, double.NaN)]
         public void ManageModulation(double modulation, double currentMinimum, double desired, double actualFlow, double newMinimum)
         {
             _doc.DesiredModulation = 10;

@@ -92,7 +92,8 @@ namespace TelemetryToRaven
             }
             else if (actualFlowTemp >= desiredFlowTemp &&
                      modulation > settings.DesiredModulation + 5 &&
-                     actualFlowTemp > settings.MinimumFlowTemperature)
+                     actualFlowTemp > settings.MinimumFlowTemperature
+                     && desiredFlowTemp == currentMinimum)
             {
                 // extend the run by setting the minimum to the actual flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Decrease modulation");
