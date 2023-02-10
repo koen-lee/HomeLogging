@@ -54,9 +54,15 @@ namespace TelemetryToRaven
 
 
             appendSerie("broadcast.messages.outsidetemp", "OutsideTemp", "fields.temp2.value", "°C");
-            appendSerie("hmu.messages.Status01", "FlowTemperature", "fields.0.value", "°C");
-            appendSerie("hmu.messages.Status01", "ReturnTemperature", "fields.1.value", "°C");
+            //appendSerie("hmu.messages.Status01", "FlowTemperature", "fields.0.value", "°C");
+            appendSerie("hmu.messages.FlowTemp", "FlowTemperature", "fields.0.value", "°C");
+            //appendSerie("hmu.messages.Status01", "ReturnTemperature", "fields.1.value", "°C"); //less accurate, but does not require a request
+            appendSerie("hmu.messages.ReturnTemp", "ReturnTemperature", "fields.0.value", "°C");
             appendSerie("hmu.messages.SetMode", "DesiredFlowTemperature", "fields.flowtempdesired.value", "°C");
+
+            appendSerie("hmu.messages.CircuitBuildingWaterPressure", "CircuitPressure", "fields.0.value", "bar");
+            appendSerie("hmu.messages.CompressorSpeed", "CompressorSpeed", "fields.0.value", "Hz");
+            appendSerie("hmu.messages.EnergyIntegral", "EnergyIntegral", "fields.0.value", "°Cmin");
 
             appendSerie("hmu.messages.State", "Modulation", "fields.0.value", "%");
             appendSerie("hmu.messages.State", "ThermalEnergyToday", "fields.1.value", "*100W");
