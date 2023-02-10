@@ -62,7 +62,7 @@ namespace TelemetryToRaven
 
             appendSerie("hmu.messages.CircuitBuildingWaterPressure", "CircuitPressure", "fields.0.value", "bar");
             appendSerie("hmu.messages.CompressorSpeed", "CompressorSpeed", "fields.0.value", "Hz");
-            appendSerie("hmu.messages.EnergyIntegral", "EnergyIntegral", "fields.0.value", "°Cmin");
+            appendSerie("hmu.messages.EnergyIntegral", "EnergyIntegral", "fields.energyintegral.value", "°Cmin");
 
             appendSerie("hmu.messages.State", "Modulation", "fields.0.value", "%");
             appendSerie("hmu.messages.State", "ThermalEnergyToday", "fields.1.value", "*100W");
