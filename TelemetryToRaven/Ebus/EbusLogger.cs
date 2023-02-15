@@ -11,21 +11,20 @@ namespace TelemetryToRaven
 {
     public class EbusLogger : LoggerService
     {
-        HttpClient httpClient = new HttpClient() { Timeout=TimeSpan.FromSeconds(50)};
+        HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(50) };
         public EbusLogger(ILogger<EbusLogger> logger, IDocumentStore database) : base(logger, database)
         {
         }
 
         protected override async Task DoWork(CancellationToken cancellationToken)
         {
-            JsonNode parsed = GetEbusJson();
             var session = _store.OpenAsyncSession();
             string documentId = "meters/" + "ebus";
             var doc = await session.LoadAsync<EbusMeter>(documentId);
             if (doc == null)
             {
                 doc = new EbusMeter();
-                
+
                 await _store.TimeSeries.RegisterAsync<Meter>("OutsideTemp", new[] { "Outside temperature [°C]" });
                 await _store.TimeSeries.RegisterAsync<Meter>("DesiredFlowTemperature", new[] { "Flow setpoint [°C]" });
                 await _store.TimeSeries.RegisterAsync<Meter>("RoomTemperature", new[] { "Room temperature [°C]" });
@@ -34,12 +33,14 @@ namespace TelemetryToRaven
             }
             doc.VendorInfo = "Vaillant";
             doc.Medium = "ebus";
-            if( ! doc.LogItems.Any())
+            if (!doc.LogItems.Any())
             {
                 doc.LogItems = new EbusMeter.LogItem[] { new EbusMeter.LogItem { Path = "720.messages.MaxRoomHumidity", ChildPath = "fields.0.value", Tag = "%", TimeseriesName = "MaxRoomHumidity" } };
             }
+            doc.BaseURL ??= "http://localhost:8889/data";
             await session.StoreAsync(doc, documentId);
 
+            JsonNode parsed = await GetEbusJsonAsync(doc.BaseURL);
             _logger.LogInformation("Adding telemetry");
             var appendSerie = (string path, string name, string childpath, string tag)
            =>
@@ -80,18 +81,20 @@ namespace TelemetryToRaven
             appendSerie("720.messages.Hc1MinFlowTempDesired", "MinimumFlowTemp", "fields.tempv.value", "°C");
             appendSerie("720.messages.HwcStorageTemp", "DHWBoilerTemperature", "fields.tempv.value", "°C");
 
-            foreach(var extraItem in doc.LogItems)
+            foreach (var extraItem in doc.LogItems)
             {
+                var itemJson = await httpClient.GetStringAsync($"{doc.BaseURL}/{extraItem.Path}?maxage={Math.Round(extraItem.ReadInterval.TotalSeconds)}");
+                parsed = JsonNode.Parse(itemJson);
                 appendSerie(extraItem.Path, extraItem.TimeseriesName, extraItem.ChildPath, extraItem.Tag);
             }
 
             await session.SaveChangesAsync();
         }
 
-        private JsonNode GetEbusJson()
+        private async Task<JsonNode> GetEbusJsonAsync(string baseURL)
         {
             RunScript("ebus.sh");
-            var result = httpClient.GetStringAsync("http://localhost:8889/data").Result;
+            var result = await httpClient.GetStringAsync(baseURL);
             return JsonNode.Parse(result);
         }
 
