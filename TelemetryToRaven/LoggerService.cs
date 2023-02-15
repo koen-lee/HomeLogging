@@ -74,7 +74,8 @@ namespace TelemetryToRaven
             };
             var toRun = Process.Start(scriptInfo);
 
-            toRun.WaitForExit();
+            if (!toRun.WaitForExit(50 * 1000))
+                toRun.Kill();
             string output = toRun.StandardOutput.ReadToEnd();
             if (toRun.ExitCode != 0)
                 _logger.LogWarning($"Exit code {toRun.ExitCode}");
