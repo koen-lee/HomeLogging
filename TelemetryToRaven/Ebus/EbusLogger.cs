@@ -35,7 +35,13 @@ namespace TelemetryToRaven
             doc.Medium = "ebus";
             if (!doc.LogItems.Any())
             {
-                doc.LogItems = new EbusMeter.LogItem[] { new EbusMeter.LogItem { Path = "720.messages.MaxRoomHumidity", ChildPath = "fields.0.value", Tag = "%", TimeseriesName = "MaxRoomHumidity" } };
+                doc.LogItems = new EbusMeter.LogItem[] { new EbusMeter.LogItem {
+                    Path = "hmu.messages.Fan1", 
+                    ChildPath = "fields.0.value", 
+                    Tag = "", 
+                    TimeseriesName = "Fan",
+                    ReadInterval = TimeSpan.FromMinutes(5) }
+                };
             }
             doc.BaseURL ??= "http://localhost:8889/data";
             await session.StoreAsync(doc, documentId);
