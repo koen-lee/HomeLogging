@@ -67,30 +67,28 @@ namespace TelemetryToRaven
             if (currentMinimum < settings.MinimumFlowTemperature)
             {
                 _logger.LogInformation("Reset temperature, it was lower than the configured minimum.");
-                SetMinimumFlowTemp(settings.MinimumFlowTemperature);
+                SetMinimumFlowTemp(settings.MinimumFlowTemperature, currentMinimum, settings); ;
             }
             else if (speed < 1 && currentMinimum > settings.MinimumFlowTemperature)
             {
                 _logger.LogInformation("Reset temperature, it was higher and there is no heat requested.");
-                SetMinimumFlowTemp(settings.MinimumFlowTemperature);
-            } 
-            else if (actualFlowTemp <= desiredFlowTemp &&
-                     speed < settings.DesiredModulation &&
+                SetMinimumFlowTemp(settings.MinimumFlowTemperature, currentMinimum, settings); ;
+            }
+            else if (speed < settings.DesiredModulation &&
                      actualFlowTemp < settings.MaximumFlowTemperature &&
                      desiredFlowTemp >= settings.MinimumFlowTemperature)
             {
                 // increase modulation by increasing the actual flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Increase modulation");
-                SetMinimumFlowTemp(actualFlowTemp + 0.1);
+                SetMinimumFlowTemp(actualFlowTemp + 0.5, currentMinimum, settings); ;
             }
-            else if (actualFlowTemp >= desiredFlowTemp &&
-                     speed > settings.DesiredModulation + 5 &&
+            else if (speed > settings.DesiredModulation + 5 &&
                      actualFlowTemp > settings.MinimumFlowTemperature
                      && desiredFlowTemp == currentMinimum)
             {
                 // extend the run by setting the minimum to the actual flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Decrease modulation");
-                SetMinimumFlowTemp(actualFlowTemp - 0.2);
+                SetMinimumFlowTemp(actualFlowTemp - 0.5, currentMinimum, settings);
             }
             else
             {
@@ -98,8 +96,14 @@ namespace TelemetryToRaven
             }
         }
 
-        protected virtual void SetMinimumFlowTemp(double minimumFlowTemperature)
+        protected virtual void SetMinimumFlowTemp(double minimumFlowTemperature, double currentMinimum, EbusMeter settings)
         {
+            if (minimumFlowTemperature < settings.MinimumFlowTemperature)
+                return;
+            if (minimumFlowTemperature > settings.MaximumFlowTemperature)
+                return;
+            if (Math.Abs(minimumFlowTemperature - currentMinimum) < 0.4)
+                return;
             _logger.LogInformation($"Setting new minimum flow temperature to {minimumFlowTemperature}");
             RunScript("writeminflowtemp.sh", $"{minimumFlowTemperature:0.0}");
         }

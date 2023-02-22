@@ -4,6 +4,7 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -36,9 +37,9 @@ namespace TelemetryToRaven
             if (!doc.LogItems.Any())
             {
                 doc.LogItems = new EbusMeter.LogItem[] { new EbusMeter.LogItem {
-                    Path = "hmu.messages.Fan1", 
-                    ChildPath = "fields.0.value", 
-                    Tag = "", 
+                    Path = "hmu/Fan1",
+                    ChildPath = "fields.0.value",
+                    Tag = "",
                     TimeseriesName = "Fan",
                     ReadInterval = TimeSpan.FromMinutes(5) }
                 };
@@ -87,11 +88,24 @@ namespace TelemetryToRaven
             appendSerie("720.messages.Hc1MinFlowTempDesired", "MinimumFlowTemp", "fields.tempv.value", "°C");
             appendSerie("720.messages.HwcStorageTemp", "DHWBoilerTemperature", "fields.tempv.value", "°C");
 
+            await session.SaveChangesAsync();
             foreach (var extraItem in doc.LogItems)
             {
-                var itemJson = await httpClient.GetStringAsync($"{doc.BaseURL}/{extraItem.Path}?maxage={Math.Round(extraItem.ReadInterval.TotalSeconds)}");
-                parsed = JsonNode.Parse(itemJson);
-                appendSerie(extraItem.Path, extraItem.TimeseriesName, extraItem.ChildPath, extraItem.Tag);
+
+                var url = $"{doc.BaseURL}/{extraItem.Path}?maxage={(int)Math.Round(extraItem.ReadInterval.TotalSeconds)}";
+                _logger.LogInformation(url);
+                try
+                {
+                    var itemJson = await httpClient.GetStringAsync(url);
+                    parsed = JsonNode.Parse(itemJson);
+                }
+                catch
+                {
+
+                    var itemJson = await httpClient.GetStringAsync(url);
+                    parsed = JsonNode.Parse(itemJson);
+                }
+                appendSerie(extraItem.Path.Replace("/", ".messages."), extraItem.TimeseriesName, extraItem.ChildPath, extraItem.Tag);
             }
 
             await session.SaveChangesAsync();
