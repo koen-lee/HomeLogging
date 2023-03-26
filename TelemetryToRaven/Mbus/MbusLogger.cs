@@ -6,12 +6,14 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
-using TelemetryToRaven.Sdm;
 
 namespace TelemetryToRaven.Mbus
 {
     public class MbusLogger : LoggerService
     {
+        double _interpolatedEnergy = 0;
+        private EnergyReading _latestReading;
+
         public MbusLogger(ILogger<MbusLogger> logger, IDocumentStore database) : base(logger, database)
         {
         }
@@ -55,7 +57,7 @@ namespace TelemetryToRaven.Mbus
             var returntemperature = records[10];
             var flowtemperature = records[9];
             var volumeflow = records[13];
-            appendSerie(records[1], "HeatEnergy", "kWh", 1);
+            appendSerie(records[1], "HeatEnergyRaw", "kWh", 1);
             appendSerie(flowtemperature, "FlowTemperature", "°C", 0.01);
             appendSerie(returntemperature, "ReturnTemperature", "°C", 0.01);
             appendSerie(volumeflow, "VolumeFlow", "m³/h", 1);
@@ -67,7 +69,12 @@ namespace TelemetryToRaven.Mbus
             var power = 4186 * dT * (volumeflow.NumericValue / 3600 /* m³/h -> kg/s */);
             session.TimeSeriesFor(doc, "CalculatedPower")
                  .Append(volumeflow.Timestamp.UtcDateTime, new[] { Math.Round(power, 0), dT }, "W;K");
-            appendSerie(records[12], "Power", "W", 100);
+
+            
+            var newReading = new EnergyReading { Energy = records[1].NumericValue, Power = power, Timestamp = records[1].Timestamp };
+            InterpolateEnergy(newReading);
+            session.TimeSeriesFor(doc, "HeatEnergy")
+                 .Append(newReading.Timestamp.UtcDateTime,  newReading.Energy, "kWh");
 
             await session.SaveChangesAsync();
             _logger.LogInformation("Done");
@@ -77,6 +84,42 @@ namespace TelemetryToRaven.Mbus
         {
             var serializer = new XmlSerializer(typeof(MBusData), "");
             return (MBusData)serializer.Deserialize(new StringReader(stream));
+        }
+
+        /// <summary>
+        /// The SensoStar meter only register whole kWh. This is OKish for our purposes, but it would be nice to have more resolution.
+        /// Try to interpolate the fractional energy by keeping track of a Riemann sum of the power.
+        /// newreading is updated.
+        /// </summary>
+        /// <param name="newreading"></param>
+        /// <param name="_latestReading"></param>
+        private void InterpolateEnergy(EnergyReading newreading)
+        {
+            if (_latestReading == null || _latestReading.Timestamp >= newreading.Timestamp)
+                return;
+
+            if (newreading.Energy > _latestReading.Energy) // kWh counter updated, reset fraction
+            {
+                _interpolatedEnergy = 0;
+                return;
+            }
+            // Assume average power over time, result in Wh
+            double delta = ((newreading.Power + _latestReading.Power) / 2) *
+                         (newreading.Timestamp - _latestReading.Timestamp).TotalHours;
+
+            _interpolatedEnergy += delta / 1000.0; // Wh -> kWh
+
+            if (_interpolatedEnergy > 0.99) // the fraction must be < 1
+                _interpolatedEnergy = 0.99;
+            _latestReading = newreading;
+            newreading.Energy += _interpolatedEnergy;
+        }
+
+        public class EnergyReading
+        {
+            public double Energy { get; set; }
+            public double Power { get; init; }
+            public DateTimeOffset Timestamp { get; init; }
         }
     }
 }
