@@ -15,17 +15,18 @@ namespace TelemetryTests
 
             _doc = new EbusMeter
             {
+                DesiredModulation = 5,
                 MinimumFlowTemperature = 24,
                 MaximumFlowTemperature = 30
             };
         }
 
         [Theory]
-        [InlineData(0, 24, 24, 25, 25)] // Extend the run when overshooting Ta
+        [InlineData(0, 24, 24, 25, 25.5)] // Extend the run when overshooting Ta
         [InlineData(0, 26, 0, 22, 24)]  // Reset the run when undershooting Ta
         [InlineData(0, 23, 0, 15, 24)]  // Increase the minimum when it is lower than configured
         [InlineData(0, 23, 23, 23.5, 24)] // 
-        [InlineData(0, 24, 24, 24.5, 24.5)] // extend the run when on minimum
+        [InlineData(0, 24, 24, 24.5, 25)] // extend the run when on minimum
         public void ParseTableItem(double modulation, double currentMinimum, double desired, double actualFlow, double newMinimum)
         {
             _undertest.UpdateMinimumFlowTemp(_doc, currentMinimum, actualFlow, desired, modulation);
@@ -55,7 +56,7 @@ namespace TelemetryTests
         }
         public double MinimumFlowTemperature { get; private set; }
 
-        protected override void SetMinimumFlowTemp(double minimumFlowTemperature)
+        protected override void SetMinimumFlowTemp(double minimumFlowTemperature, double currentMinimum, EbusMeter settings)
         {
             MinimumFlowTemperature = minimumFlowTemperature;
         }
