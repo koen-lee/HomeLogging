@@ -6,16 +6,40 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using Raven.Client.Documents.Session;
+using Raven.Client.Documents.Session.TimeSeries;
+using static System.Collections.Specialized.BitVector32;
 
 namespace TelemetryToRaven.Mbus
 {
     public class MbusLogger : LoggerService
     {
-        double _interpolatedEnergy = 0;
+        private double _interpolatedEnergy;
         private EnergyReading _latestReading;
 
         public MbusLogger(ILogger<MbusLogger> logger, IDocumentStore database) : base(logger, database)
         {
+        }
+
+        private void LoadLastValues(IAsyncDocumentSession session, string documentId)
+        {
+            bool GetLast(string timeseries, out TimeSeriesEntry value)
+            {
+                var entries = session.TimeSeriesFor(documentId, timeseries).GetAsync(DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10))).Result;
+                value = entries.LastOrDefault();
+                if (value != null)
+                { _logger.LogDebug($"Using {timeseries} {value}"); }
+                else
+                { _logger.LogWarning($"Missing {timeseries}"); }
+                return value == null;
+            }
+
+            if (GetLast("Power", out var power)
+                && GetLast("HeatEnergy", out var energy))
+            {
+                _latestReading = new EnergyReading { Energy = energy.Value, Power = power.Value, Timestamp = energy.Timestamp };
+                _interpolatedEnergy = energy.Value - Math.Round(energy.Value);
+            }
         }
 
         protected override async Task DoWork(CancellationToken cancellationToken)
@@ -63,21 +87,22 @@ namespace TelemetryToRaven.Mbus
             appendSerie(volumeflow, "VolumeFlow", "m³/h", 1);
             appendSerie(records[12], "Power", "W", 100);
 
-
             // Q = Cw * dT * flow * time
             var dT = (flowtemperature.NumericValue - returntemperature.NumericValue) * 0.01;
             var power = 4186 * dT * (volumeflow.NumericValue / 3600 /* m³/h -> kg/s */);
             session.TimeSeriesFor(doc, "CalculatedPower")
                  .Append(volumeflow.Timestamp.UtcDateTime, new[] { Math.Round(power, 0), dT }, "W;K");
 
-
             var newReading = new EnergyReading { Energy = records[1].NumericValue, Power = power, Timestamp = records[1].Timestamp };
+
+            if (_latestReading == null)
+                LoadLastValues(session, documentId);
             InterpolateEnergy(newReading);
             _logger.LogDebug($"HeatEnergy: {newReading.Energy}");
             session.TimeSeriesFor(doc, "HeatEnergy")
                  .Append(newReading.Timestamp.UtcDateTime, Math.Round(newReading.Energy, 3), "kWh");
 
-            await session.SaveChangesAsync();
+            await session.SaveChangesAsync(cancellationToken);
             _logger.LogInformation("Done");
         }
 
@@ -88,7 +113,7 @@ namespace TelemetryToRaven.Mbus
         }
 
         /// <summary>
-        /// The SensoStar meter only register whole kWh. This is OKish for our purposes, but it would be nice to have more resolution.
+        /// The Zenner meter only register whole kWh. This is OKish for our purposes, but it would be nice to have more resolution.
         /// Try to interpolate the fractional energy by keeping track of a Riemann sum of the power.
         /// newreading is updated.
         /// </summary>
