@@ -70,11 +70,12 @@ namespace TelemetryToRaven.Mbus
             session.TimeSeriesFor(doc, "CalculatedPower")
                  .Append(volumeflow.Timestamp.UtcDateTime, new[] { Math.Round(power, 0), dT }, "W;K");
 
-            
+
             var newReading = new EnergyReading { Energy = records[1].NumericValue, Power = power, Timestamp = records[1].Timestamp };
             InterpolateEnergy(newReading);
+            _logger.LogDebug($"HeatEnergy: {newReading.Energy}");
             session.TimeSeriesFor(doc, "HeatEnergy")
-                 .Append(newReading.Timestamp.UtcDateTime,  newReading.Energy, "kWh");
+                 .Append(newReading.Timestamp.UtcDateTime, newReading.Energy, "kWh");
 
             await session.SaveChangesAsync();
             _logger.LogInformation("Done");
@@ -92,26 +93,32 @@ namespace TelemetryToRaven.Mbus
         /// newreading is updated.
         /// </summary>
         /// <param name="newreading"></param>
-        /// <param name="_latestReading"></param>
         private void InterpolateEnergy(EnergyReading newreading)
         {
             if (_latestReading == null || _latestReading.Timestamp >= newreading.Timestamp)
-                return;
-
-            if (newreading.Energy > _latestReading.Energy) // kWh counter updated, reset fraction
             {
-                _interpolatedEnergy = 0;
-                return;
+                _logger.LogInformation($"Not interpolating {_latestReading?.Timestamp}");
             }
-            // Assume average power over time, result in Wh
-            double delta = ((newreading.Power + _latestReading.Power) / 2) *
-                         (newreading.Timestamp - _latestReading.Timestamp).TotalHours;
+            else if (newreading.Energy > _latestReading.Energy) // kWh counter updated, reset fraction
+            {
 
-            _interpolatedEnergy += delta / 1000.0; // Wh -> kWh
+                _logger.LogInformation($"Not interpolating; counter rollover");
+                _interpolatedEnergy = 0;
+            }
+            else
+            {
+                // Assume average power over time, result in Wh
+                double delta = ((newreading.Power + _latestReading.Power) / 2) *
+                               (newreading.Timestamp - _latestReading.Timestamp).TotalHours;
+
+                _interpolatedEnergy += delta / 1000.0; // Wh -> kWh
+            }
 
             if (_interpolatedEnergy > 0.99) // the fraction must be < 1
                 _interpolatedEnergy = 0.99;
             _latestReading = newreading;
+
+            _logger.LogDebug($"Fractional part {_interpolatedEnergy}");
             newreading.Energy += _interpolatedEnergy;
         }
 
