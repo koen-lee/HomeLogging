@@ -75,7 +75,7 @@ namespace TelemetryToRaven.Mbus
             InterpolateEnergy(newReading);
             _logger.LogDebug($"HeatEnergy: {newReading.Energy}");
             session.TimeSeriesFor(doc, "HeatEnergy")
-                 .Append(newReading.Timestamp.UtcDateTime, newReading.Energy, "kWh");
+                 .Append(newReading.Timestamp.UtcDateTime, Math.Round(newReading.Energy, 3), "kWh");
 
             await session.SaveChangesAsync();
             _logger.LogInformation("Done");
@@ -110,8 +110,8 @@ namespace TelemetryToRaven.Mbus
                 // Assume average power over time, result in Wh
                 double delta = ((newreading.Power + _latestReading.Power) / 2) *
                                (newreading.Timestamp - _latestReading.Timestamp).TotalHours;
-
-                _interpolatedEnergy += delta / 1000.0; // Wh -> kWh
+                if (delta > 0) // monotonic counter, bidirectional measurements (defrosts?) mess up the logic
+                    _interpolatedEnergy += delta / 1000.0; // Wh -> kWh
             }
 
             if (_interpolatedEnergy > 0.99) // the fraction must be < 1
