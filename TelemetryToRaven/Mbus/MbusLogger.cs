@@ -25,13 +25,14 @@ namespace TelemetryToRaven.Mbus
         {
             bool GetLast(string timeseries, out TimeSeriesEntry value)
             {
-                var entries = session.TimeSeriesFor(documentId, timeseries).GetAsync(DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10))).Result;
+                var entries = session.TimeSeriesFor(documentId, timeseries)
+                    .GetAsync(DateTime.UtcNow.Subtract(TimeSpan.FromMinutes(10))).Result;
                 value = entries.LastOrDefault();
                 if (value != null)
                 { _logger.LogDebug($"Using {timeseries} {value}"); }
                 else
                 { _logger.LogWarning($"Missing {timeseries}"); }
-                return value == null;
+                return value != null;
             }
 
             if (GetLast("Power", out var power)
