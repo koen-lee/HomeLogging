@@ -1,10 +1,14 @@
 ﻿using HidSharp;
-using MediatR;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace TelemetryToRaven.ZyCO2
+namespace ZyCO2
 {
     public class ZGm053Service : BackgroundService
     {
@@ -148,6 +152,9 @@ namespace TelemetryToRaven.ZyCO2
                         SensorName = "RoomTemperature"
                     };
                     break;
+                default:
+                    _logger.LogDebug("Unsupported data {opcodebyte} {opcode}", data[0], (ZyAuraOpcode)data[0]);
+                    return;
             }
 
             _logger.LogInformation("Read {reading}", telemetry);
@@ -160,7 +167,7 @@ namespace TelemetryToRaven.ZyCO2
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var allDeviceList = DeviceList.Local.GetHidDevices(0x04d9, 0xa052).ToList();
-            _logger.LogDebug($"Polling {allDeviceList.Count} devices");
+            _logger.LogInformation($"Polling {allDeviceList.Count} devices");
             IEnumerable<Task> readTasks = allDeviceList.Select(dev => ReadDevice(stoppingToken, dev));
             return Task.WhenAll(readTasks);
         }

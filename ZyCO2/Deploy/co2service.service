@@ -5,9 +5,9 @@ After=syslog.target network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/usr/share/telemetryservice/
-EnvironmentFile=/etc/telemetry/telemetryservice.conf
-ExecStart="/usr/share/telemetryservice/telemetryservice"
+WorkingDirectory=/usr/share/co2service/
+EnvironmentFile=/etc/telemetry/co2service.conf
+ExecStart="/usr/share/co2service/co2service"
 Restart=on-failure
 RestartSec=10
 KillMode=process

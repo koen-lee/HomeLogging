@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Raven.Client.Documents.Conventions;
 
-namespace TelemetryToRaven
+namespace ZyCO2
 {
     public static class Program
     {
@@ -19,7 +19,7 @@ namespace TelemetryToRaven
             IHost host = Host.CreateDefaultBuilder()
                             .ConfigureServices(services =>
                             {
-                                AddHostedServiceWhenEnabled<ZyCO2.ZGm053Service>(services, enabledServices);
+                                AddHostedServiceWhenEnabled<ZGm053Service>(services, enabledServices);
                                 services.AddSingleton(CreateDocumentStore(serverurl, database));
                             })
                             .Build();

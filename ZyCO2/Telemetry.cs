@@ -1,5 +1,7 @@
 ﻿
-namespace TelemetryToRaven.ZyCO2
+using System;
+
+namespace ZyCO2
 {
     internal record Telemetry
     {

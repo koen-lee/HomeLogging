@@ -3,8 +3,9 @@
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>net6.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+	<runtimeIdentifiers>linux-arm</runtimeIdentifiers>
+	<InstallService>true</InstallService>
+	<RootNamespace>ZyCO2</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,13 +23,13 @@
     <Content Include="Deploy\co2service.conf">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <LinuxPath>/etc/telemetry/telemetryservice.conf</LinuxPath>
+      <LinuxPath>/etc/telemetry/co2service.conf</LinuxPath>
       <LinuxFileMode>644</LinuxFileMode>
     </Content>
     <Content Include="Deploy\co2service.service">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
-      <LinuxPath>/etc/systemd/system/telemetryservice.service</LinuxPath>
+      <LinuxPath>/etc/systemd/system/co2service.service</LinuxPath>
       <LinuxFileMode>644</LinuxFileMode>
     </Content>
   </ItemGroup>
@@ -38,6 +39,7 @@
     <PackageReference Include="MediatR" Version="12.0.1" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
+	<PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.21216.1" />
     <PackageReference Include="RavenDB.Client" Version="5.2.4" />
   </ItemGroup>
 
