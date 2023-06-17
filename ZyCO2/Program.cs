@@ -40,7 +40,7 @@ namespace ZyCO2
             var store = new DocumentStore()
             {
                 Database = database,
-                Urls = new[] { serverUrl }
+                Urls = serverUrl.Split(";")
             };
             store.Conventions.FindCollectionName = type =>
             {
@@ -50,6 +50,7 @@ namespace ZyCO2
                 return DocumentConventions.DefaultGetCollectionName(type);
             };
             store.Initialize();
+            store.SetRequestTimeout(TimeSpan.FromSeconds(5));
             return store;
         }
     }

@@ -164,13 +164,25 @@ namespace ZyCO2
             session.SaveChanges();
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var allDeviceList = DeviceList.Local.GetHidDevices(0x04d9, 0xa052).ToList();
-            _logger.LogInformation($"Polling {allDeviceList.Count} devices");
-            IEnumerable<Task> readTasks = allDeviceList.Select(dev => ReadDevice(stoppingToken, dev));
-            return Task.WhenAll(readTasks);
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    var allDeviceList = DeviceList.Local.GetHidDevices(0x04d9, 0xa052).ToList();
+                    if (allDeviceList.Count == 0)
+                        throw new InvalidOperationException("could not find a co2 device");
+                    _logger.LogInformation($"Polling {allDeviceList.Count} devices");
+                    IEnumerable<Task> readTasks = allDeviceList.Select(dev => ReadDevice(stoppingToken, dev));
+                    await Task.WhenAll(readTasks);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Task failed");
+                    await Task.Delay(TimeSpan.FromMinutes(1), stoppingToken);
+                }
+            }
         }
     }
-
 }
