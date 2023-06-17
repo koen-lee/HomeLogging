@@ -17,15 +17,9 @@
     <None Remove="Deploy\telemetryservice.conf" />
 	  <None Remove="Deploy\telemetryservice.service" />
 	  <None Remove="Deploy\ebus.sh" />
-	  <None Remove="Deploy\mbus.sh" />
 	  <None Remove="Deploy\writeminflowtemp.sh" />
-	  <None Remove="Deploy\poll_tapo.py" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Deploy\poll_tapo.py" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		<LinuxPath>/etc/telemetry/poll_tapo.py</LinuxPath>		
-    </Content> 
+  <ItemGroup> 
     <Content Include="Deploy\writeminflowtemp.sh" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755"> 
       <LinuxPath>/etc/telemetry/writeminflowtemp.sh</LinuxPath>
     </Content>
@@ -40,10 +34,6 @@
 
 	  <Content Include="Deploy\ebus.sh" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755">
 		  <LinuxPath>/etc/telemetry/ebus.sh</LinuxPath>
-		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	  </Content>
-	  <Content Include="Deploy\mbus.sh" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755">
-		  <LinuxPath>/etc/telemetry/mbus.sh</LinuxPath>
 		  <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 	  </Content>
   </ItemGroup>

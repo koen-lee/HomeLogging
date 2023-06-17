@@ -16,25 +16,27 @@ namespace TelemetryToRaven
 
         protected TimeSpan Delay { get; set; }
 
+        protected TimeSpan BaseInterval { get; set; } = TimeSpan.FromMinutes(1);
+
         public LoggerService(ILogger logger, IDocumentStore database)
         {
             _logger = logger;
             _store = database;
-            Delay = TimeSpan.FromMinutes(1);
+            Delay = BaseInterval;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-
             while (!stoppingToken.IsCancellationRequested)
             {
                 _logger.LogInformation("Worker running at: {time}", DateTimeOffset.Now);
                 try
                 {
+                    CancellationToken timeoutToken = CreateLinkedTimeout(stoppingToken, 2 * BaseInterval);
                     var timer = Stopwatch.StartNew();
-                    await DoWork(stoppingToken);
+                    await DoWork(timeoutToken);
                     _logger.LogDebug($"Work took {timer.Elapsed}");
-                    Delay = TimeSpan.FromMinutes(1) - timer.Elapsed;
+                    Delay = BaseInterval - timer.Elapsed;
                     if (Delay < TimeSpan.FromSeconds(5)) Delay = TimeSpan.FromSeconds(5);
                 }
                 catch (Exception ex)
@@ -45,6 +47,14 @@ namespace TelemetryToRaven
                 }
                 await Task.Delay(Delay, stoppingToken);
             }
+        }
+
+        private CancellationToken CreateLinkedTimeout(CancellationToken stoppingToken, TimeSpan time)
+        {
+            var timeout = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+            timeout.CancelAfter(time);
+            var timeoutToken = timeout.Token;
+            return timeoutToken;
         }
 
         protected abstract Task DoWork(CancellationToken stoppingToken);
