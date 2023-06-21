@@ -91,7 +91,7 @@ namespace TelemetryToRaven.Sdm
                 double rounded = Math.Round(value, 4);
                 _logger.LogDebug("Got {value} {tag} for {SeriesName}", rounded, definition.Tag, definition.SeriesName);
                 session.TimeSeriesFor(doc, definition.SeriesName)
-                    .Append(timestamp, rounded, definition.Tag);
+                    .Append(timestamp, rounded + definition.Offset, definition.Tag);
             }
 
             await session.SaveChangesAsync(cancellationToken);
@@ -131,6 +131,6 @@ namespace TelemetryToRaven.Sdm
             init => _registers = value ?? throw new ArgumentNullException();
         }
 
-        public record RegisterDefinition(ushort Register, string SeriesName, string Tag);
+        public record RegisterDefinition(ushort Register, string SeriesName, string Tag, double Offset = 0);
     }
 }
