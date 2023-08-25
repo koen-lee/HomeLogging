@@ -334,3 +334,4 @@ ASALocalRun/
 .localhistory/
 TelemetryToRaven/output.txt
 ZyCO2/output.txt
+VentsOverUDP/Properties/launchSettings.json
