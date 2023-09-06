@@ -11,6 +11,7 @@ using TelemetryToRaven.P1;
 using TelemetryToRaven.Sdm;
 using TelemetryToRaven.Weewx;
 using TelemetryToRaven.Tapo;
+using TelemetryToRaven.Vents;
 
 namespace TelemetryToRaven
 {
@@ -35,6 +36,7 @@ namespace TelemetryToRaven
                                 AddHostedServiceWhenEnabled<EbusRunExtender>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<KasaLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<TapoLogger>(services, enabledServices);
+                                AddHostedServiceWhenEnabled<VentsMicraLogger>(services, enabledServices);
                                 services.AddSingleton(CreateDocumentStore(serverurl, database));
                             })
                             .Build();

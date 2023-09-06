@@ -81,7 +81,7 @@ namespace TelemetryToRaven.Sdm
         {
             _logger.LogInformation(
                 $"Reading meter: {doc.Id} address: {doc.ModbusAddress} registers: {doc.Registers.Length}");
-            var timestamp = DateTime.UtcNow;
+            var timestamp = DateTime.UtcNow.TruncateToSeconds();
 
             foreach (var definition in doc.Registers)
             {

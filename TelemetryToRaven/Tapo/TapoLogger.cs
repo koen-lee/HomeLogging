@@ -75,7 +75,7 @@ namespace TelemetryToRaven.Tapo
                 var currentEnergyReading = plug.MonthEnergy / 1000.0;
                 await GetOrUpdateEnergyOffset(cancellationToken, meter, currentEnergyReading, session);
                 await session.StoreAsync(meter, cancellationToken);
-                session.TimeSeriesFor(meter, PowerEnergyTsName).Append(DateTimeOffset.Now.UtcDateTime, new[] {
+                session.TimeSeriesFor(meter, PowerEnergyTsName).Append(DateTimeOffset.Now.UtcDateTime.TruncateToSeconds(), new[] {
                     plug.CurrentPower / 1000.0,
                     currentEnergyReading + meter.EnergyOffset,
                     currentEnergyReading
