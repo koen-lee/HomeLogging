@@ -31,9 +31,9 @@ static class Program
         }
         else
         {
-
             Console.WriteLine($"<- from [{result.RemoteEndPoint}]");
-            Console.WriteLine($"<- {Reply.ReadFrom(result.Buffer)}");
+            Console.WriteLine($"<- {BitConverter.ToString( result.Buffer)}]");
+            Reply.ReadFrom(result.Buffer);
         }
     }
 
