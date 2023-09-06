@@ -21,6 +21,7 @@ static class Program
         var addresses = readItems.Split(';').Select(name => Enum.Parse<ItemAddress>(name)).ToArray();
         var device = new Device(host, serial, password);
         var items = await device.ReadAddresses(addresses);
-        Console.WriteLine(items.Select(i => $"{i.Key} : {BitConverter.ToString(i.Value)}"));
+        foreach (var i in items)
+            Console.WriteLine($"{i.Key} : {BitConverter.ToString(i.Value)}");
     }
 }

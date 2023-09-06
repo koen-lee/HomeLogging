@@ -112,7 +112,6 @@ class Device
                 default:
                     var address = page << 8 | next;
                     var data = Eat(ref buffer, size);
-                    Console.WriteLine($"{(ItemAddress)address} = {BitConverter.ToString(data.ToArray())}");
                     result[(ItemAddress)address] = data.ToArray();
                     size = 1;
                     break;
