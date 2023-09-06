@@ -1,17 +1,12 @@
 ﻿using Microsoft.Extensions.Logging;
-using NModbus;
-using NModbus.Serial;
 using Raven.Client.Documents;
 using System;
 using System.Collections.Generic;
-using System.IO.Ports;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NModbus.Device;
 using Raven.Client.Documents.Linq;
 using Raven.Client.Documents.Session;
-using System.Net.Sockets;
 
 namespace TelemetryToRaven.Vents
 {
@@ -59,41 +54,113 @@ namespace TelemetryToRaven.Vents
         {
             _logger.LogInformation(
                 $"Reading meter: {doc.Id} address: {doc.Hostname} serial: {doc.Serial}");
-            var timestamp = DateTime.UtcNow;
+            var timestamp = DateTime.UtcNow.TruncateToSeconds();
 
-            var temperatures = await GetTemperatures(doc);
-            session.TimeSeriesFor(doc, nameof(temperatures.ExhaustTemperature)).Append(timestamp, temperatures.ExhaustTemperature);
-            session.TimeSeriesFor(doc, nameof(temperatures.OutsideTemperature)).Append(timestamp, temperatures.OutsideTemperature);
+            var device = new Device(doc.Hostname, doc.Serial, doc.Id);
 
+            var items = await device.ReadAddresses(
+                    ItemAddress.TemperatureOutsideIntake,
+                    ItemAddress.TemperatureOutsideExhaust,
+
+                    ItemAddress.OnOff,
+                    ItemAddress.SpeedMode,
+                    ItemAddress.Boost,
+                    ItemAddress.Timer,
+                    ItemAddress.TimerSpeed,
+                    ItemAddress.WeeklyScheduleEnabled,
+                    ItemAddress.WeeklyScheduleSpeed,
+
+                    ItemAddress.SupplySpeed1,
+                    ItemAddress.ExtractSpeed1,
+                    ItemAddress.SupplySpeed2,
+                    ItemAddress.ExtractSpeed2,
+                    ItemAddress.SupplySpeed3,
+                    ItemAddress.ExtractSpeed3,
+                    ItemAddress.SupplySpeed4,
+                    ItemAddress.ExtractSpeed4,
+                    ItemAddress.SupplySpeed5,
+                    ItemAddress.ExtractSpeed5,
+                    ItemAddress.SupplySpeedBoost,
+                    ItemAddress.ExtractSpeedBoost
+            );
+
+            session.TimeSeriesFor(doc, "ExhaustTemperature").Append(timestamp, items.Temperature(ItemAddress.TemperatureOutsideExhaust));
+            session.TimeSeriesFor(doc, "OutsideTemperature").Append(timestamp, items.Temperature(ItemAddress.TemperatureOutsideIntake));
+
+            GetSpeed(items, out var speed, out var speedtag);
+            session.TimeSeriesFor(doc, "Speed").Append(timestamp, speed, speedtag);
+            var speeds = GetSpeedPercentage(items, speed);
+
+            session.TimeSeriesFor(doc, "FanSpeedPercentages").Append(timestamp, new[] { speeds.supplySpeed, speeds.extractSpeed }, "supply;extract");
             await session.SaveChangesAsync(cancellationToken);
         }
 
-
-
-        public async Task<TemperatureReply?> GetTemperatures(Ventilator device)
+        private static void GetSpeed(Dictionary<ItemAddress, byte[]> items, out int speed, out string speedtag)
         {
-
-            var udp = new UdpClient(device.Hostname, 4000);
-            var request = Communication.ComposeCommand(device.Serial, device.Password, Communication.Temperatures).ToArray();
-
-            udp.Send(request);
-            _logger.LogDebug($"-> {BitConverter.ToString(request)}");
-            var timeoutsource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
-            var result = await udp.ReceiveAsync(timeoutsource.Token);
-            if (timeoutsource.IsCancellationRequested)
+            speed = 0;
+            speedtag = "off";
+            if (items.Bool(ItemAddress.OnOff))
             {
-                _logger.LogWarning("Timeout");
-                return null;
-            }
-            else
-            {
-
-                _logger.LogDebug($"<- from [{result.RemoteEndPoint}]");
-                _logger.LogDebug($"<- {BitConverter.ToString(result.Buffer)}");
-                var temperatures = Reply.ReadFrom<TemperatureReply>(result.Buffer);
-                return temperatures;
+                speed = items.Byte(ItemAddress.SpeedMode);
+                speedtag = "on";
+                if (items.Bool(ItemAddress.WeeklyScheduleEnabled))
+                {
+                    speed = items.Byte(ItemAddress.WeeklyScheduleSpeed);
+                    speedtag = "schedule";
+                }
+                if (items.Bool(ItemAddress.Timer))
+                {
+                    speed = items.Byte(ItemAddress.TimerSpeed);
+                    speedtag = "timer";
+                }
+                if (items.Bool(ItemAddress.Boost))
+                {
+                    speed = 6;
+                    speedtag = "boost";
+                }
             }
         }
+
+        private static (double supplySpeed, double extractSpeed) GetSpeedPercentage(Dictionary<ItemAddress, byte[]> items, int speed)
+        {
+            var supplySpeed = 0.0;
+            var extractSpeed = 0.0;
+
+            switch (speed)
+            {
+                case 0:
+                    break;
+                case 1:
+                    supplySpeed = items.Byte(ItemAddress.SupplySpeed1);
+                    extractSpeed = items.Byte(ItemAddress.ExtractSpeed1);
+                    break;
+                case 2:
+                    supplySpeed = items.Byte(ItemAddress.SupplySpeed2);
+                    extractSpeed = items.Byte(ItemAddress.ExtractSpeed2);
+                    break;
+                case 3:
+                    supplySpeed = items.Byte(ItemAddress.SupplySpeed3);
+                    extractSpeed = items.Byte(ItemAddress.ExtractSpeed3);
+                    break;
+                case 4:
+                    supplySpeed = items.Byte(ItemAddress.SupplySpeed4);
+                    extractSpeed = items.Byte(ItemAddress.ExtractSpeed4);
+                    break;
+                case 5:
+                    supplySpeed = items.Byte(ItemAddress.SupplySpeed5);
+                    extractSpeed = items.Byte(ItemAddress.ExtractSpeed5);
+                    break;
+                case 6:
+                    supplySpeed = items.Byte(ItemAddress.SupplySpeedBoost);
+                    extractSpeed = items.Byte(ItemAddress.ExtractSpeedBoost);
+                    break;
+                default:
+                    throw new NotImplementedException();
+            }
+            return (supplySpeed, extractSpeed);
+        }
+
+
     }
 
 
