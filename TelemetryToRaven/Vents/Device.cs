@@ -49,9 +49,9 @@ class Device
         }
         var request = ComposeCommand(Serial, Password, command).ToArray();
 
-        var udp = new UdpClient(Hostname, 4000);
-
-        udp.Send(request);
+        var udp = new UdpClient();
+        udp.EnableBroadcast = true;
+        udp.Send(request, Hostname, 4000);
         Logger.LogDebug($"-> [{udp.Client.RemoteEndPoint}] {GetString(request)}");
         var timeoutsource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
         var result = await udp.ReceiveAsync(timeoutsource.Token);

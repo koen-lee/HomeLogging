@@ -39,11 +39,12 @@ class Device
             }
             command.Add((byte)(addr & 0xff));
         }
-        var request = ComposeCommand(Serial, Password, command);
+        var request = ComposeCommand(Serial, Password, command).ToArray();
 
-        var udp = new UdpClient(Hostname, 4000);
-        udp.Send(request.ToArray());
-        Console.WriteLine("Sent");
+        var udp = new UdpClient();
+        udp.EnableBroadcast = true;
+        udp.Send(request, Hostname, 4000);
+        Console.WriteLine("-> " + GetString(request));
         var timeoutsource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
         var result = await udp.ReceiveAsync(timeoutsource.Token);
         if (timeoutsource.IsCancellationRequested)
@@ -53,7 +54,7 @@ class Device
         else
         {
             Console.WriteLine($"<- from [{result.RemoteEndPoint}]");
-            Console.WriteLine($"<- {BitConverter.ToString(result.Buffer)}]");
+            Console.WriteLine($"<- {GetString(result.Buffer)}]");
             return ReadReply(result.Buffer);
         }
     }
