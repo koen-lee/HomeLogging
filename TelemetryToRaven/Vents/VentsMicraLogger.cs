@@ -56,7 +56,7 @@ namespace TelemetryToRaven.Vents
                 $"Reading meter: {doc.Id} address: {doc.Hostname} serial: {doc.Serial}");
             var timestamp = DateTime.UtcNow.TruncateToSeconds();
 
-            var device = new Device(doc.Hostname, doc.Serial, doc.Password);
+            var device = new Device(_logger, doc.Hostname, doc.Serial, doc.Password);
 
             var items = await device.ReadAddresses(
                     ItemAddress.TemperatureOutsideIntake,
