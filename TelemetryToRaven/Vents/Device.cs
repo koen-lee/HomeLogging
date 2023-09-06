@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.Extensions.Logging;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -17,12 +18,14 @@ class Device
 
     private const ushort Packet_Header = 0xfdfd;
 
+    private ILogger Logger { get; }
     public string Hostname { get; }
     public string Serial { get; }
     public string Password { get; }
 
-    public Device(string hostname, string serial, string password)
+    public Device(ILogger logger, string hostname, string serial, string password)
     {
+        Logger = logger;
         Hostname = hostname;
         Serial = serial;
         Password = password;
@@ -44,11 +47,12 @@ class Device
             }
             command.Add((byte)(addr & 0xff));
         }
-        var request = ComposeCommand(Serial, Password, command);
+        var request = ComposeCommand(Serial, Password, command).ToArray();
 
         var udp = new UdpClient(Hostname, 4000);
-        udp.Send(request.ToArray());
-        Console.WriteLine("Sent");
+
+        udp.Send(request);
+        Logger.LogDebug($"-> [{udp.Client.RemoteEndPoint}] {GetString(request)}");
         var timeoutsource = new CancellationTokenSource(TimeSpan.FromSeconds(2));
         var result = await udp.ReceiveAsync(timeoutsource.Token);
         if (timeoutsource.IsCancellationRequested)
@@ -57,8 +61,7 @@ class Device
         }
         else
         {
-            Console.WriteLine($"<- from [{result.RemoteEndPoint}]");
-            Console.WriteLine($"<- {BitConverter.ToString(result.Buffer)}]");
+            Logger.LogDebug($"<- [{result.RemoteEndPoint}] {GetString(result.Buffer)}]");
             return ReadReply(result.Buffer);
         }
     }
