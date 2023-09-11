@@ -1,25 +1,40 @@
-﻿
-using System.Net.Sockets;
-using System.Text;
-
-static class Program
+﻿static class Program
 {
-    static readonly Dictionary<string, string> Commands = new()
+    public static async Task Main(string serial,
+        string password = "1111",
+        string host = "255.255.255.255",
+        string readItems = "TemperatureOutsideIntake;TemperatureOutsideExhaust",
+        string writeItems = "",
+        bool listItems = false)
     {
-        { "Temperatures", "01b91f20212233bbba326a" },
-        { "SwitchOn", "030101" },
-        { "SwitchOff", "030100" },
-        { "SpeedAndTemperature", "010102070872731f223a3b3c3d3e3f40414243" }
-    };
-
-    public static async Task Main(string host, string serial, string password = "1111", string readItems = "TemperatureOutsideIntake;TemperatureOutsideExhaust")
-    {
+        if (listItems)
+        {
+            foreach (var item in Enum.GetNames<ItemAddress>())
+                Console.WriteLine(item);
+            return;
+        }
         if (host == null || serial == null)
             throw new ArgumentNullException();
-        Console.WriteLine("Hello, World!");
 
-        var addresses = readItems.Split(';').Select(name => Enum.Parse<ItemAddress>(name)).ToArray();
         var device = new Device(host, serial, password);
+        await DoWrite(writeItems, device);
+        await DoRead(readItems, device);
+    }
+
+    private static async Task DoWrite(string readItems, Device device)
+    {
+        if (string.IsNullOrWhiteSpace(readItems)) return;
+        var addresses = readItems.Split(';')
+            .Select(item => item.Split('=')).ToDictionary(
+            item => Enum.Parse<ItemAddress>(item[0]),
+            item => Convert.FromHexString(item[1])
+        );
+        await device.WriteAddresses(addresses);
+    }
+
+    private static async Task DoRead(string readItems, Device device)
+    {
+        var addresses = readItems.Split(';').Select(name => Enum.Parse<ItemAddress>(name)).ToArray();
         var items = await device.ReadAddresses(addresses);
         foreach (var i in items)
             Console.WriteLine($"{i.Key} : {BitConverter.ToString(i.Value)}");

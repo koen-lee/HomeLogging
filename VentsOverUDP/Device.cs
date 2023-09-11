@@ -8,6 +8,7 @@ class Device
     private const byte Cmd_Size = 0xFE;
     private const byte Cmd_Not_Supported = 0xFD;
     private const byte Function_Read = 0x01;
+    private const byte Function_Write = 0x02;
     private const byte Function_ReadWrite = 0x03;
 
     private const ushort Packet_Header = 0xfdfd;
@@ -59,6 +60,37 @@ class Device
         }
     }
 
+
+    public async Task WriteAddresses(Dictionary<ItemAddress, byte[]> data)
+    {
+        List<byte> command = new();
+        command.Add(Function_Write);
+        byte page = 0;
+        foreach (var addr in data)
+        {
+            if (addr.Value.Length == 0) continue;
+            var thispage = (byte)((int)addr.Key >> 8);
+            if (thispage != page)
+            {
+                command.Add(Cmd_Page);
+                command.Add(thispage);
+                page = thispage;
+            }
+            if (addr.Value.Length > 1)
+            {
+                command.Add(Cmd_Size);
+                command.Add((byte)addr.Value.Length);
+            }
+            command.Add((byte)((int)addr.Key & 0xff));
+            command.AddRange(addr.Value);
+        }
+        var request = ComposeCommand(Serial, Password, command).ToArray();
+
+        var udp = new UdpClient();
+        udp.EnableBroadcast = true;
+        udp.Send(request, Hostname, 4000);
+        Console.WriteLine("-> " + GetString(request));
+    }
 
     static byte[] ComposeCommand(string serial, string password, IEnumerable<byte> payload)
     {
