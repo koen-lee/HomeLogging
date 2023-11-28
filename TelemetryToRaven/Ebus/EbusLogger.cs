@@ -89,7 +89,7 @@ namespace TelemetryToRaven
             foreach (var extraItem in doc.LogItems)
             {
 
-                var url = $"{doc.BaseURL}/{extraItem.Path}?maxage={(int)Math.Round(extraItem.ReadInterval.TotalSeconds)}";
+                var url = $"{doc.BaseURL}/{extraItem.Path}?maxage={(int)Math.Round(extraItem.ReadInterval.TotalSeconds * 0.8)}";
                 _logger.LogInformation(url);
                 try
                 {
