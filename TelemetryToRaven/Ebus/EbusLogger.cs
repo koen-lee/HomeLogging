@@ -4,7 +4,6 @@ using System;
 using System.Linq;
 using System.Net.Http;
 using System.Text.Json.Nodes;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -12,7 +11,7 @@ namespace TelemetryToRaven
 {
     public class EbusLogger : LoggerService
     {
-        HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(50) };
+        readonly HttpClient httpClient = new HttpClient() { Timeout = TimeSpan.FromSeconds(50) };
         public EbusLogger(ILogger<EbusLogger> logger, IDocumentStore database) : base(logger, database)
         {
         }
@@ -21,7 +20,7 @@ namespace TelemetryToRaven
         {
             var session = _store.OpenAsyncSession();
             string documentId = "meters/" + "ebus";
-            var doc = await session.LoadAsync<EbusMeter>(documentId);
+            var doc = await session.LoadAsync<EbusMeter>(documentId, cancellationToken);
             if (doc == null)
             {
                 doc = new EbusMeter();
@@ -45,7 +44,7 @@ namespace TelemetryToRaven
                 };
             }
             doc.BaseURL ??= "http://localhost:8889/data";
-            await session.StoreAsync(doc, documentId);
+            await session.StoreAsync(doc, documentId, cancellationToken);
 
             JsonNode parsed = await GetEbusJsonAsync(doc.BaseURL);
             _logger.LogInformation("Adding telemetry");
@@ -63,15 +62,13 @@ namespace TelemetryToRaven
                 }
                 catch (Exception e)
                 {
-                    _logger.LogError($"{path} : {e}");
+                    _logger.LogError(e, $"{path}");
                 };
             };
 
 
             appendSerie("broadcast.messages.outsidetemp", "OutsideTemp", "fields.temp2.value", "°C");
-            //appendSerie("hmu.messages.Status01", "FlowTemperature", "fields.0.value", "°C");
             appendSerie("hmu.messages.FlowTemp", "FlowTemperature", "fields.0.value", "°C");
-            //appendSerie("hmu.messages.Status01", "ReturnTemperature", "fields.1.value", "°C"); //less accurate, but does not require a request
             appendSerie("hmu.messages.ReturnTemp", "ReturnTemperature", "fields.0.value", "°C");
             appendSerie("hmu.messages.SetMode", "DesiredFlowTemperature", "fields.flowtempdesired.value", "°C");
 
@@ -88,7 +85,7 @@ namespace TelemetryToRaven
             appendSerie("720.messages.Hc1MinFlowTempDesired", "MinimumFlowTemp", "fields.tempv.value", "°C");
             appendSerie("720.messages.HwcStorageTemp", "DHWBoilerTemperature", "fields.tempv.value", "°C");
 
-            await session.SaveChangesAsync();
+            await session.SaveChangesAsync(cancellationToken);
             foreach (var extraItem in doc.LogItems)
             {
 
@@ -96,19 +93,18 @@ namespace TelemetryToRaven
                 _logger.LogInformation(url);
                 try
                 {
-                    var itemJson = await httpClient.GetStringAsync(url);
+                    var itemJson = await httpClient.GetStringAsync(url, cancellationToken);
                     parsed = JsonNode.Parse(itemJson);
                 }
                 catch
                 {
-
-                    var itemJson = await httpClient.GetStringAsync(url);
+                    var itemJson = await httpClient.GetStringAsync(url, cancellationToken);
                     parsed = JsonNode.Parse(itemJson);
                 }
                 appendSerie(extraItem.Path.Replace("/", ".messages."), extraItem.TimeseriesName, extraItem.ChildPath, extraItem.Tag);
             }
 
-            await session.SaveChangesAsync();
+            await session.SaveChangesAsync(cancellationToken);
         }
 
         private async Task<JsonNode> GetEbusJsonAsync(string baseURL)
@@ -122,7 +118,7 @@ namespace TelemetryToRaven
         {
             var splitter = path.IndexOf(".");
             if (splitter > 0)
-                return GetChild(node[path.Substring(0, splitter)], path.Substring(splitter + 1));
+                return GetChild(node[path[..splitter]], path[(splitter + 1)..]);
             return node[path];
         }
 
