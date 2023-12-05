@@ -12,6 +12,10 @@ namespace TelemetryToRaven
         public double DesiredModulation { get; set; }
         public LogItem[] LogItems { get => logItems ?? Array.Empty<LogItem>(); set => logItems = value; }
         public string BaseURL { get; set; }
+        public bool SwitchThermostat { get; set; }
+        public double PermanentSwitchTemperature { get; set; } = 4;
+        public TimeSpan MinimumOnPeriod { get; set; } = TimeSpan.FromHours(1);
+        public TimeSpan MinimumOffPeriod { get; set; } = TimeSpan.FromHours(1);
 
         public class LogItem
         {

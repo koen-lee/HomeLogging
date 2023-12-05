@@ -51,7 +51,6 @@ namespace TelemetryToRaven
                 return false;
             };
 
-
             _logger.LogInformation("Reading telemetry");
             // matches timeseries as saved by EbusLogger
             if (!GetLast("MinimumFlowTemp", out var currentMinimum)) return;
@@ -69,7 +68,7 @@ namespace TelemetryToRaven
                 _logger.LogInformation("Reset temperature, it was lower than the configured minimum.");
                 SetMinimumFlowTemp(settings.MinimumFlowTemperature, currentMinimum, settings); ;
             }
-            else if (speed < 1 && currentMinimum > settings.MinimumFlowTemperature)
+            else if (desiredFlowTemp < 1 && currentMinimum > settings.MinimumFlowTemperature)
             {
                 _logger.LogInformation("Reset temperature, it was higher and there is no heat requested.");
                 SetMinimumFlowTemp(settings.MinimumFlowTemperature, currentMinimum, settings); ;
@@ -80,15 +79,15 @@ namespace TelemetryToRaven
             {
                 // increase modulation by increasing the actual flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Increase modulation");
-                SetMinimumFlowTemp(actualFlowTemp + 0.5, currentMinimum, settings); ;
+                SetMinimumFlowTemp(currentMinimum + 0.5, currentMinimum, settings); ;
             }
             else if (speed > settings.DesiredModulation + 5 &&
                      actualFlowTemp > settings.MinimumFlowTemperature
-                     && desiredFlowTemp == currentMinimum)
+                     && desiredFlowTemp <= currentMinimum)
             {
                 // extend the run by setting the minimum to the actual flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Decrease modulation");
-                SetMinimumFlowTemp(actualFlowTemp - 0.5, currentMinimum, settings);
+                SetMinimumFlowTemp(currentMinimum - 0.5, currentMinimum, settings);
             }
             else
             {
