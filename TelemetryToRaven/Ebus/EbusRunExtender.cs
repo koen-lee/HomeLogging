@@ -80,7 +80,7 @@ namespace TelemetryToRaven
                 _logger.LogInformation("Increase modulation");
                 SetMinimumFlowTemp(desiredFlowTemp + 0.5, currentMinimum, settings); ;
             }
-            else if (speed > settings.DesiredModulation + 3 &&
+            else if (speed > settings.DesiredModulation + 5 &&
                      actualFlowTemp > settings.MinimumFlowTemperature
                      && actualFlowTemp <= desiredFlowTemp
                      && desiredFlowTemp <= currentMinimum)
