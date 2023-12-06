@@ -79,7 +79,7 @@ namespace TelemetryToRaven
 
         protected string RunCommand(string command, string arguments)
         {
-            _logger.LogInformation($"Running {command}");
+            _logger.LogInformation($"Running {command} {arguments}");
             var scriptInfo = new ProcessStartInfo
             {
                 FileName = command,

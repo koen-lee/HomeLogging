@@ -73,14 +73,16 @@ namespace TelemetryToRaven
             }
             else if (speed < settings.DesiredModulation &&
                      actualFlowTemp < settings.MaximumFlowTemperature &&
+                     actualFlowTemp >= desiredFlowTemp &&
                      desiredFlowTemp >= 1)
             {
                 // increase modulation by increasing the flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Increase modulation");
-                SetMinimumFlowTemp(currentMinimum + 0.5, currentMinimum, settings); ;
+                SetMinimumFlowTemp(desiredFlowTemp + 0.5, currentMinimum, settings); ;
             }
             else if (speed > settings.DesiredModulation + 3 &&
                      actualFlowTemp > settings.MinimumFlowTemperature
+                     && actualFlowTemp <= desiredFlowTemp
                      && desiredFlowTemp <= currentMinimum)
             {
                 _logger.LogInformation("Decrease modulation");

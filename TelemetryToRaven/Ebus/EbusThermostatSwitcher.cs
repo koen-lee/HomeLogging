@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -11,7 +9,7 @@ namespace TelemetryToRaven
 {
     public class EbusThermostatSwitcher : LoggerService
     {
-        public EbusThermostatSwitcher(ILogger<EbusRunExtender> logger, IDocumentStore database) : base(logger, database)
+        public EbusThermostatSwitcher(ILogger<EbusThermostatSwitcher> logger, IDocumentStore database) : base(logger, database)
         {
         }
 
@@ -31,32 +29,6 @@ namespace TelemetryToRaven
                 _logger.LogInformation("SwitchThermostat disabled, dropping out.");
                 return;
             }
-
-            /*
-             * 
-             *  Kamer
-   "Hc1RoomTempSwitchOn": {
-    "name": "Hc1RoomTempSwitchOn",
-    "passive": false,
-    "write": false,
-    "lastup": 1701611886,
-    "zz": 21,
-    "fields": {
-     "rcmode": {"value": "modulating"}
-    }
-   },
-            
-   "Hc1RoomTempSwitchOn": {
-    "name": "Hc1RoomTempSwitchOn",
-    "passive": false,
-    "write": false,
-    "lastup": 1701612143,
-    "zz": 21,
-    "fields": {
-     "rcmode": {"value": "thermostat"}
-    }
-   },
-             */
 
             _logger.LogInformation("Reading telemetry");
 

@@ -34,6 +34,7 @@ namespace TelemetryToRaven
                                 AddHostedServiceWhenEnabled<SdmLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<WeewxLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<EbusRunExtender>(services, enabledServices);
+                                AddHostedServiceWhenEnabled<EbusThermostatSwitcher>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<KasaLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<TapoLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<VentsMicraLogger>(services, enabledServices);
