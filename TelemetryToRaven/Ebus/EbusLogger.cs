@@ -91,16 +91,12 @@ namespace TelemetryToRaven
 
                 var url = $"{doc.BaseURL}/{extraItem.Path}?maxage={(int)Math.Round(extraItem.ReadInterval.TotalSeconds * 0.8)}";
                 _logger.LogInformation(url);
-                try
+                await Retry(async () =>
                 {
                     var itemJson = await httpClient.GetStringAsync(url, cancellationToken);
                     parsed = JsonNode.Parse(itemJson);
-                }
-                catch
-                {
-                    var itemJson = await httpClient.GetStringAsync(url, cancellationToken);
-                    parsed = JsonNode.Parse(itemJson);
-                }
+                    return 0;
+                });
                 appendSerie(extraItem.Path.Replace("/", ".messages."), extraItem.TimeseriesName, extraItem.ChildPath, extraItem.Tag);
             }
 

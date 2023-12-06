@@ -1,9 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json.Nodes;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -75,17 +73,16 @@ namespace TelemetryToRaven
             }
             else if (speed < settings.DesiredModulation &&
                      actualFlowTemp < settings.MaximumFlowTemperature &&
-                     desiredFlowTemp >= settings.MinimumFlowTemperature)
+                     desiredFlowTemp >= 1)
             {
-                // increase modulation by increasing the actual flow temp, so the heatpump controls think all is well.
+                // increase modulation by increasing the flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Increase modulation");
                 SetMinimumFlowTemp(currentMinimum + 0.5, currentMinimum, settings); ;
             }
-            else if (speed > settings.DesiredModulation + 5 &&
+            else if (speed > settings.DesiredModulation + 3 &&
                      actualFlowTemp > settings.MinimumFlowTemperature
                      && desiredFlowTemp <= currentMinimum)
             {
-                // extend the run by setting the minimum to the actual flow temp, so the heatpump controls think all is well.
                 _logger.LogInformation("Decrease modulation");
                 SetMinimumFlowTemp(currentMinimum - 0.5, currentMinimum, settings);
             }

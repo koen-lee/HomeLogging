@@ -74,10 +74,15 @@ namespace TelemetryToRaven
         protected string RunScript(string scriptname, string arguments = null)
         {
             var path = Path.Combine(Environment.GetEnvironmentVariable("LOGSCRIPTDIR") ?? "/etc/telemetry", scriptname);
-            _logger.LogInformation($"Running {path}");
+            return RunCommand(path, arguments);
+        }
+
+        protected string RunCommand(string command, string arguments)
+        {
+            _logger.LogInformation($"Running {command}");
             var scriptInfo = new ProcessStartInfo
             {
-                FileName = path,
+                FileName = command,
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 Arguments = arguments ?? string.Empty
