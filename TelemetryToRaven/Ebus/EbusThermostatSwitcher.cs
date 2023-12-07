@@ -40,9 +40,9 @@ namespace TelemetryToRaven
             var thermostatSetting = GetFromThermostat<string>("Hc1RoomTempSwitchOn");
             var outsideTemperature = GetFromThermostat<double>("OutsideTempAvg");
 
-            if (outsideTemperature > doc.PermanentSwitchTemperature + 0.5)
+            if (outsideTemperature > doc.PermanentSwitchTemperature )
                 SwitchTo("thermostat", thermostatSetting);
-            else if (outsideTemperature < doc.PermanentSwitchTemperature - 0.5)
+            else
             {
                 var now = DateTime.UtcNow;
                 var period = Math.Max(doc.MinimumOnPeriod.TotalMinutes, doc.MinimumOffPeriod.TotalMinutes);
@@ -54,6 +54,8 @@ namespace TelemetryToRaven
                     _logger.LogWarning("Not enough data, do nothing.");
                     return;
                 }
+                var onCount = entries.Count(e => e.Value > 0);
+                _logger.LogDebug($"Datapoint count: {entries.Count} On count: {onCount}");
                 if (entries.Where(e => e.Timestamp > now.Subtract(doc.MinimumOnPeriod)).All(e => e.Value > 0))
                 {
                     _logger.LogInformation("Long runtime reached. Prevent overshoot.");
