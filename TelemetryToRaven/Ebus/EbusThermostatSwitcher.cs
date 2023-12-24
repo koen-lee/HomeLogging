@@ -1,6 +1,8 @@
 ﻿using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
+using Raven.Client.Documents.Session.TimeSeries;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,43 +35,46 @@ namespace TelemetryToRaven
             _logger.LogInformation("Reading telemetry");
 
             // rough logic:
-            /* if outside > 5 then switch to "thermostat"
-             * if outside < 4 && offtime > 1h then switch to "modulating" = weather dependent with room compensation
-             * if outside < 4 && ontime > 1h then switch to "thermostat" = weather dependent with on/off
+            /* if outside > 5C then switch to "thermostat"
+             * if outside < 4C && offtime > 1h then switch to "modulating" = weather dependent with room compensation
+             * if outside < 4C && ontime > 1h then switch to "thermostat" = weather dependent with on/off
              */
-            var thermostatSetting = GetFromThermostat<string>("Hc1RoomTempSwitchOn");
+
+            // By using the average outside temperature, we don't need a hysteresis: it is updated once per hour.
             var outsideTemperature = GetFromThermostat<double>("OutsideTempAvg");
 
-            if (outsideTemperature > doc.PermanentSwitchTemperature )
-                SwitchTo("thermostat", thermostatSetting);
+            if (outsideTemperature > doc.PermanentSwitchTemperature)
+                SwitchTo("thermostat");
             else
             {
                 var now = DateTime.UtcNow;
-                var period = Math.Max(doc.MinimumOnPeriod.TotalMinutes, doc.MinimumOffPeriod.TotalMinutes);
-                var entries = (await session.TimeSeriesFor(documentId, "DesiredFlowTemperature")
-                    .GetAsync(now.Subtract(TimeSpan.FromMinutes(period)), token: cancellationToken)
+                var period = Max(doc.MinimumOnPeriod, doc.MinimumOffPeriod);
+                var setpoints = (await session.TimeSeriesFor(documentId, "DesiredFlowTemperature")
+                    .GetAsync(now.Subtract(period), token: cancellationToken)
                     ).ToList();
-                if (entries.Count < 10)
+                if (setpoints.Count < 10)
                 {
                     _logger.LogWarning("Not enough data, do nothing.");
                     return;
                 }
-                var onCount = entries.Count(e => e.Value > 0);
-                _logger.LogDebug($"Datapoint count: {entries.Count} On count: {onCount}");
-                if (entries.Where(e => e.Timestamp > now.Subtract(doc.MinimumOnPeriod)).All(e => e.Value > 0))
+                var onCount = setpoints.Count(e => e.Value > 0);
+                _logger.LogDebug($"Datapoint count: {setpoints.Count} On count: {onCount}");
+                if (setpoints.YoungerThan(now.Subtract(doc.MinimumOnPeriod)).All(e => e.Value > 0))
                 {
                     _logger.LogInformation("Long runtime reached. Prevent overshoot.");
-                    SwitchTo("thermostat", thermostatSetting);
-                } else if (entries.Where(e => e.Timestamp > now.Subtract(doc.MinimumOffPeriod)).All(e => e.Value <= 0))
+                    SwitchTo("thermostat");
+                }
+                else if (setpoints.YoungerThan(now.Subtract(doc.MinimumOffPeriod)).All(e => e.Value <= 0))
                 {
                     _logger.LogInformation("Long offtime reached. Prevent cold floors.");
-                    SwitchTo("modulating", thermostatSetting);
+                    SwitchTo("modulating");
                 }
             }
         }
 
-        private void SwitchTo(string desiredSetting, string actualSetting)
+        private void SwitchTo(string desiredSetting)
         {
+            var actualSetting = GetFromThermostat<string>("Hc1RoomTempSwitchOn");
             if (desiredSetting == actualSetting)
             {
                 _logger.LogDebug($"Nothing to do, thermostat already set to '{actualSetting}'");
@@ -83,6 +88,20 @@ namespace TelemetryToRaven
         {
             var result = RunCommand("ebusctl", "read -m 50 -c 720 " + setting);
             return (T)Convert.ChangeType(result.Trim(), typeof(T));
+        }
+
+        public static TimeSpan Max(TimeSpan ts1, TimeSpan ts2)
+        {
+            return TimeSpan.FromTicks(Math.Max(ts1.Ticks, ts2.Ticks));
+        }
+
+    }
+
+    static class Extensions
+    {
+        public static IEnumerable<TimeSeriesEntry> YoungerThan(this IEnumerable<TimeSeriesEntry> entries, DateTime cutoff)
+        {
+            return entries.Where(e => e.Timestamp > cutoff);
         }
     }
 }
