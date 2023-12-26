@@ -12,6 +12,7 @@ using TelemetryToRaven.Sdm;
 using TelemetryToRaven.Weewx;
 using TelemetryToRaven.Tapo;
 using TelemetryToRaven.Vents;
+using TelemetryToRaven.Gpio;
 
 namespace TelemetryToRaven
 {
@@ -38,6 +39,7 @@ namespace TelemetryToRaven
                                 AddHostedServiceWhenEnabled<KasaLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<TapoLogger>(services, enabledServices);
                                 AddHostedServiceWhenEnabled<VentsMicraLogger>(services, enabledServices);
+                                AddHostedServiceWhenEnabled<GpioLogger>(services, enabledServices);
                                 services.AddSingleton(CreateDocumentStore(serverurl, database));
                             })
                             .Build();

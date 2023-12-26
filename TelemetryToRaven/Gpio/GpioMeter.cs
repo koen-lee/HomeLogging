@@ -2,7 +2,7 @@
 
 namespace TelemetryToRaven.Gpio
 {
-    internal record GpioMeter : Meter
+    public record GpioMeter : Meter
     {
         public int GpioPin { get; set; }
         public double QuantityPerPulse { get; set; }

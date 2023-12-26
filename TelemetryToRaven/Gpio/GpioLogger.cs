@@ -1,8 +1,6 @@
-﻿using AngleSharp;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Raven.Client.Documents;
 using Raven.Client.Documents.Linq;
-using Raven.Client.Documents.Queries.TimeSeries;
 using Raven.Client.Documents.Queries;
 using Raven.Client.Documents.Session;
 using System;
@@ -10,10 +8,8 @@ using System.Collections.Generic;
 using System.Device.Gpio;
 using System.Diagnostics;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
-using TelemetryToRaven.Sdm;
 
 namespace TelemetryToRaven.Gpio
 {
@@ -57,8 +53,19 @@ namespace TelemetryToRaven.Gpio
         private async Task IncrementTimeseriesAsync(GpioMeter meter, IAsyncDocumentSession session)
         {
             var timestamp = DateTime.UtcNow.TruncateTo(TimeSpan.FromMilliseconds(10));
-            var series = session.IncrementalTimeSeriesFor(meter.Id, "inc:" + meter.TimeseriesName);
-            series.Increment(timestamp, meter.QuantityPerPulse);
+            var series = session.TimeSeriesFor(meter.Id, meter.TimeseriesName);
+            var lastValues = await session.Query<Meter>()
+                    .Where(c => c.Id == meter.Id)
+                    .Select(q => RavenQuery.TimeSeries(q, meter.TimeseriesName)
+                        .Select(x => x.Last()).ToList()
+                    ).SingleAsync();
+
+            var last = lastValues.Results.SingleOrDefault()?.Last;
+            double offset = 0;
+            if (last != null)
+                offset = last[0];
+            _logger.LogInformation($"Counted {offset} for {meter.Id} so far");
+            series.Append(timestamp, offset + meter.QuantityPerPulse);
             await session.SaveChangesAsync();
         }
 
@@ -71,7 +78,7 @@ namespace TelemetryToRaven.Gpio
 
             if (!meters.Any())
             {
-                var doc = await CreateNewDocument();
+                var doc = CreateNewDocument();
                 await session.StoreAsync(doc, cancellationToken);
                 meters.Add(doc);
             }
@@ -80,7 +87,7 @@ namespace TelemetryToRaven.Gpio
         }
 
 
-        private async Task<GpioMeter> CreateNewDocument()
+        private GpioMeter CreateNewDocument()
         {
             var doc = new GpioMeter
             {
