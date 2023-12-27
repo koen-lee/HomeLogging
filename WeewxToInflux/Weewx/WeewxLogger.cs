@@ -53,7 +53,7 @@ namespace WeewxToInflux.Weewx
             {
                 Measurement = "Weather",
                 Timestamp = timestamp,
-                Fields = currentValues.ToDictionary(cv => cv.Name, cv => (object)cv.Values),
+                Fields = currentValues.ToDictionary(cv => cv.Name, cv => (object)cv.Values[0]),
                 Precision = TimeUnit.Seconds,
             };
 
