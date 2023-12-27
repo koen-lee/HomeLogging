@@ -39,7 +39,7 @@ namespace WeewxToInflux
 
         private static InfluxDBClient CreateDocumentStore(string serverUrl, string database, string username, string password)
         {
-            var store = new InfluxDBClient(serverUrl, username, password);
+            var store = new InfluxDBClient(serverUrl, username, password, database, "default");
             return store;
         }
     }

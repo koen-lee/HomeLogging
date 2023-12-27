@@ -1,5 +1,7 @@
 ﻿using AngleSharp;
 using InfluxDB.Client;
+using InfluxDB.Client.Api.Domain;
+using InfluxDB.Client.Writes;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -40,11 +42,24 @@ namespace WeewxToInflux.Weewx
                 .Where(i => i != null).ToList();
 
             var session = _store.GetWriteApiAsync();
-  
+
             var timestamp = DateTime.ParseExact(parsed.QuerySelector(".lastupdate").TextContent, "dd/MM/yy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
 
+            var points = currentValues.Select(cv =>
+            {
+                var measurement = PointData.Measurement(cv.Name)
+                .Tag("unit", cv.Unit)
+                .Timestamp(timestamp, WritePrecision.S);
+                measurement = measurement.Field("value", cv.Values[0]);
+                if (cv.Values.Length > 1)
+                    measurement = measurement.Field("value1", cv.Values[1]);
+                if (cv.Values.Length > 2)
+                    measurement = measurement.Field("value2", cv.Values[2]);
+                return measurement;
+            });
 
-            await session.WriteMeasurementsAsync(currentValues, cancellationToken: cancellationToken);
+            await session.WritePointsAsync(points.ToList(), bucket: "weatherdata", org: "appp", cancellationToken: cancellationToken);
+
             _logger.LogInformation("Done");
         }
 
@@ -81,7 +96,7 @@ namespace WeewxToInflux.Weewx
             return new WeatherItem
             {
                 Name = label.Replace(" ", ""),
-                Description = $"{ label} [{unit}]",
+                Description = $"{label} [{unit}]",
                 Values = values.ToArray(),
                 Unit = unit,
             };

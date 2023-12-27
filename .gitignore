@@ -335,3 +335,4 @@ ASALocalRun/
 TelemetryToRaven/output.txt
 ZyCO2/output.txt
 VentsOverUDP/Properties/launchSettings.json
+WeewxToInflux/Properties/launchSettings.json
