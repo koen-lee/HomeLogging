@@ -11,7 +11,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TelemetryTests", "Telemetry
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "co2service", "ZyCO2\co2service.csproj", "{84F6FFC2-BD30-444D-8EAC-CABD1E925499}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VentsOverUDP", "VentsOverUDP\VentsOverUDP.csproj", "{E823E020-6F22-4825-B933-89318BF92513}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VentsOverUDP", "VentsOverUDP\VentsOverUDP.csproj", "{E823E020-6F22-4825-B933-89318BF92513}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "weewx2influx", "WeewxToInflux\weewx2influx.csproj", "{F89683D8-521D-40E4-89D8-4934A5DF1536}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,6 +41,10 @@ Global
 		{E823E020-6F22-4825-B933-89318BF92513}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E823E020-6F22-4825-B933-89318BF92513}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E823E020-6F22-4825-B933-89318BF92513}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F89683D8-521D-40E4-89D8-4934A5DF1536}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F89683D8-521D-40E4-89D8-4934A5DF1536}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F89683D8-521D-40E4-89D8-4934A5DF1536}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F89683D8-521D-40E4-89D8-4934A5DF1536}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

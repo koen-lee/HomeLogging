@@ -1,0 +1,46 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net6.0</TargetFramework>
+	<runtimeIdentifiers>linux-arm</runtimeIdentifiers>
+	<InstallService>true</InstallService>
+	<RootNamespace>WweewxToInflux</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="appsettings.json" />
+    <None Remove="Deploy\weewx2influx.conf" />
+    <None Remove="Deploy\weewx2influx.service" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <ExcludeFromSingleFile>true</ExcludeFromSingleFile>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+    </Content>
+    <Content Include="Deploy\weewx2influx.conf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <LinuxPath>/etc/telemetry/co2service.conf</LinuxPath>
+      <LinuxFileMode>644</LinuxFileMode>
+    </Content>
+    <Content Include="Deploy\weewx2influx.service">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <LinuxPath>/etc/systemd/system/co2service.service</LinuxPath>
+      <LinuxFileMode>644</LinuxFileMode>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="HidSharp" Version="2.1.0" />
+    <PackageReference Include="MediatR" Version="12.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="6.0.1" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="7.0.1" />
+	<PackageReference Include="System.CommandLine.DragonFruit" Version="0.3.0-alpha.21216.1" />
+	  <PackageReference Include="AngleSharp.Io" Version="0.16.0" />
+  </ItemGroup>
+
+</Project>
