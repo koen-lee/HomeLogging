@@ -1,4 +1,6 @@
-using InfluxDB.Client;
+using InfluxDB.Net;
+using InfluxDB.Net.Infrastructure.Influx;
+using InfluxDB.Net.Models;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
@@ -12,16 +14,16 @@ namespace WeewxToInflux
     public abstract class LoggerService : BackgroundService
     {
         protected readonly ILogger _logger;
-        protected readonly InfluxDBClient _store;
+        protected readonly Func<Point, Task<InfluxDbApiWriteResponse>> _appendDatabase;
 
         protected TimeSpan Delay { get; set; }
 
         protected TimeSpan BaseInterval { get; set; } = TimeSpan.FromMinutes(1);
 
-        public LoggerService(ILogger logger, InfluxDBClient database)
+        public LoggerService(ILogger logger, Func<Point, Task<InfluxDbApiWriteResponse>> appendDatabase)
         {
             _logger = logger;
-            _store = database;
+            _appendDatabase = appendDatabase;
             Delay = BaseInterval;
         }
 

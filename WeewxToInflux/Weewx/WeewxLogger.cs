@@ -1,7 +1,8 @@
 ﻿using AngleSharp;
-using InfluxDB.Client;
-using InfluxDB.Client.Api.Domain;
-using InfluxDB.Client.Writes;
+using AngleSharp.Common;
+using InfluxDB.Net.Enums;
+using InfluxDB.Net.Infrastructure.Influx;
+using InfluxDB.Net.Models;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace WeewxToInflux.Weewx
 {
     public class WeewxLogger : LoggerService
     {
-        public WeewxLogger(ILogger<WeewxLogger> logger, InfluxDBClient database) : base(logger, database)
+        public WeewxLogger(ILogger<WeewxLogger> logger, Func<Point, Task<InfluxDbApiWriteResponse>> appendDatabase) : base(logger, appendDatabase)
         {
         }
 
@@ -41,24 +42,22 @@ namespace WeewxToInflux.Weewx
                     r.GetElementsByClassName("data").Single().TextContent))
                 .Where(i => i != null).ToList();
 
-            var session = _store.GetWriteApiAsync();
-
             var timestamp = DateTime.ParseExact(parsed.QuerySelector(".lastupdate").TextContent, "dd/MM/yy HH:mm:ss", CultureInfo.InvariantCulture, DateTimeStyles.AssumeLocal);
 
-            var points = currentValues.Select(cv =>
-            {
-                var measurement = PointData.Measurement(cv.Name)
-                .Tag("unit", cv.Unit)
-                .Timestamp(timestamp, WritePrecision.S);
-                measurement = measurement.Field("value", cv.Values[0]);
-                if (cv.Values.Length > 1)
-                    measurement = measurement.Field("value1", cv.Values[1]);
-                if (cv.Values.Length > 2)
-                    measurement = measurement.Field("value2", cv.Values[2]);
-                return measurement;
-            });
+            var columns = new List<string> { "Time" };
+            var values = new List<object[]> { new object[] { timestamp } };
+            columns.AddRange(currentValues.Select(cv => cv.Name));
+            values.AddRange(currentValues.Select(cv => cv.Values.Cast<object>().ToArray()));
 
-            await session.WritePointsAsync(points.ToList(), bucket: "weatherdata", org: "appp", cancellationToken: cancellationToken);
+            var point = new Point()
+            {
+                Measurement = "Weather",
+                Timestamp = timestamp,
+                Fields = currentValues.ToDictionary(cv => cv.Name, cv => (object)cv.Values),
+                Precision = TimeUnit.Seconds,
+            };
+
+            InfluxDbApiResponse writeResponse = await _appendDatabase(point);
 
             _logger.LogInformation("Done");
         }

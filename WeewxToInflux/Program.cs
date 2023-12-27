@@ -1,7 +1,11 @@
-using InfluxDB.Client;
+using InfluxDB.Net;
+using InfluxDB.Net.Enums;
+using InfluxDB.Net.Infrastructure.Influx;
+using InfluxDB.Net.Models;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using WeewxToInflux.Weewx;
 
@@ -37,10 +41,10 @@ namespace WeewxToInflux
             }
         }
 
-        private static InfluxDBClient CreateDocumentStore(string serverUrl, string database, string username, string password)
+        private static Func<Point, Task<InfluxDbApiWriteResponse>> CreateDocumentStore(string serverUrl, string database, string username, string password)
         {
-            var store = new InfluxDBClient(serverUrl, username, password, database, "default");
-            return store;
+            var store = new InfluxDb(serverUrl, username, password);
+            return (Point point) => store.WriteAsync(database, point);
         }
     }
 }
