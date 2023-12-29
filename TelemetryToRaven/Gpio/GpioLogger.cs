@@ -16,15 +16,22 @@ namespace TelemetryToRaven.Gpio
     public class GpioLogger : LoggerService
     {
         public string GpioMeter = "Gpio Pulse counter";
+        private CancellationToken _stoppingToken;
+
         public GpioLogger(ILogger<GpioLogger> logger, IDocumentStore database) : base(logger, database)
         {
         }
 
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        {
+            _stoppingToken = stoppingToken;
+            return base.ExecuteAsync(stoppingToken);
+        }
         protected override async Task DoWork(CancellationToken cancellationToken)
         {
             using var session = _store.OpenAsyncSession();
-            var meters = await GetGpioMeters(cancellationToken, session);
-            var tasks = meters.Select(m => ReadGpio(m, session, cancellationToken));
+            var meters = await GetGpioMeters(_stoppingToken, session);
+            var tasks = meters.Select(m => ReadGpio(m, session, _stoppingToken));
             await Task.WhenAll(tasks);
         }
 
@@ -33,7 +40,7 @@ namespace TelemetryToRaven.Gpio
             var pin = m.GpioPin;
             using var controller = new GpioController();
             var controlPin = controller.OpenPin(pin, PinMode.Input);
-            Console.WriteLine($" Pin {pin} is {controlPin.GetPinMode()} value {controlPin.Read()} ");
+            _logger.LogInformation($" Pin {pin} is {controlPin.GetPinMode()} value {controlPin.Read()} ");
             WaitForEventResult result;
             var stopwatch = Stopwatch.StartNew();
             while (true)
@@ -44,7 +51,9 @@ namespace TelemetryToRaven.Gpio
                 _logger.LogInformation($"{m.TimeseriesName} pin {m.GpioPin} Rise after {stopwatch.Elapsed}");
                 stopwatch.Restart();
                 await IncrementTimeseriesAsync(m, session);
-                result = await controller.WaitForEventAsync(pin, PinEventTypes.Falling, cancellationToken).ConfigureAwait(false);
+                await controller.WaitForEventAsync(pin, PinEventTypes.Falling, cancellationToken).ConfigureAwait(false);
+                if (cancellationToken.IsCancellationRequested)
+                    return;
                 _logger.LogInformation($"{m.TimeseriesName} pin {m.GpioPin} Fall after {stopwatch.Elapsed}");
                 stopwatch.Restart();
             }
@@ -65,6 +74,7 @@ namespace TelemetryToRaven.Gpio
             if (last != null)
                 offset = last[0];
             _logger.LogInformation($"Counted {offset} for {meter.Id} so far");
+            series.Append(timestamp.AddMilliseconds(-10), offset);
             series.Append(timestamp, offset + meter.QuantityPerPulse);
             await session.SaveChangesAsync();
         }
