@@ -24,15 +24,18 @@ store.Conventions.FindCollectionName = type =>
 store.Initialize();
 var session = store.OpenSession();
 string documentId = "WaterMeter";
-string tsName = "inc:WaterMisspelled";
+string tsName = "Water";
 var doc = session.Load<GpioMeter>(documentId);
 var lastValues = session.Query<Meter>()
     .Where(c => c.Id == documentId)
     .Select(q => RavenQuery.TimeSeries(q, tsName)
-        .Select(x => x.Last()).ToList()
+        .Select(x => x.Count()).ToList()
     ).Single();
 
-var last = lastValues.Results.Single().Last;
-var offset = last[0];
-Console.WriteLine($"Entity {doc.Id} last {offset}");
+var count = (int)lastValues.Results.Single().Count[0];
+
+var rawLast = session.TimeSeriesFor(documentId, tsName).Get(start: count - 1);
+
+var offset = rawLast.Last();
+Console.WriteLine($"Entity {doc.Id} last {offset.Value} ts {offset.Timestamp}");
 Console.WriteLine("The world is now a better place.");

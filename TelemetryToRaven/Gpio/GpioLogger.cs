@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Xml.Linq;
 
 namespace TelemetryToRaven.Gpio
 {
@@ -43,18 +44,30 @@ namespace TelemetryToRaven.Gpio
             _logger.LogInformation($" Pin {pin} is {controlPin.GetPinMode()} value {controlPin.Read()} ");
             WaitForEventResult result;
             var stopwatch = Stopwatch.StartNew();
+            TimeSpan lowTime = TimeSpan.FromMinutes(1);
+            var debounce = TimeSpan.FromMilliseconds(200);
             while (true)
             {
                 result = await controller.WaitForEventAsync(pin, PinEventTypes.Rising, cancellationToken).ConfigureAwait(false);
                 if (cancellationToken.IsCancellationRequested)
+                {
+                    _logger.LogInformation("Done");
                     return;
+                }
                 _logger.LogInformation($"{m.TimeseriesName} pin {m.GpioPin} Rise after {stopwatch.Elapsed}");
+                if (stopwatch.Elapsed > debounce && lowTime > debounce)
+                    await IncrementTimeseriesAsync(m, session);
+                else
+                    _logger.LogWarning("Bounce detected?");
                 stopwatch.Restart();
-                await IncrementTimeseriesAsync(m, session);
                 await controller.WaitForEventAsync(pin, PinEventTypes.Falling, cancellationToken).ConfigureAwait(false);
                 if (cancellationToken.IsCancellationRequested)
+                {
+                    _logger.LogInformation("Done");
                     return;
+                }
                 _logger.LogInformation($"{m.TimeseriesName} pin {m.GpioPin} Fall after {stopwatch.Elapsed}");
+                lowTime = stopwatch.Elapsed;
                 stopwatch.Restart();
             }
         }
@@ -63,19 +76,26 @@ namespace TelemetryToRaven.Gpio
         {
             var timestamp = DateTime.UtcNow.TruncateTo(TimeSpan.FromMilliseconds(10));
             var series = session.TimeSeriesFor(meter.Id, meter.TimeseriesName);
-            var lastValues = await session.Query<Meter>()
-                    .Where(c => c.Id == meter.Id)
-                    .Select(q => RavenQuery.TimeSeries(q, meter.TimeseriesName)
-                        .Select(x => x.Last()).ToList()
-                    ).SingleAsync();
+            var lastValues = session.Query<Meter>()
+                .Where(c => c.Id == meter.Id)
+                .Select(q => RavenQuery.TimeSeries(q, meter.TimeseriesName)
+                    .Select(x => x.Count()).ToList()
+                ).Single();
 
-            var last = lastValues.Results.SingleOrDefault()?.Last;
-            double offset = 0;
-            if (last != null)
-                offset = last[0];
-            _logger.LogInformation($"Counted {offset} for {meter.Id} so far");
-            series.Append(timestamp.AddMilliseconds(-10), offset);
-            series.Append(timestamp, offset + meter.QuantityPerPulse);
+            var count = (int)lastValues.Results.Single().Count[0];
+            if (count > 0)
+            {
+                var rawLast = await series.GetAsync(start: count - 1);
+                var last = rawLast.Last();
+                _logger.LogInformation($"Counted {last.Values[0]} at {last.Timestamp} for {meter.Id} so far");
+                var rate = meter.QuantityPerPulse / (timestamp - last.Timestamp).TotalSeconds;
+                series.Append(timestamp.AddMilliseconds(-10), new[] { last.Values[0], rate });
+                series.Append(timestamp, new[] { last.Values[0] + meter.QuantityPerPulse, rate });
+            }
+            else
+            {
+                series.Append(timestamp, new[] { meter.QuantityPerPulse, 0 });
+            }
             await session.SaveChangesAsync();
         }
 
