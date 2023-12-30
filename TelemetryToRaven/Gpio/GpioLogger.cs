@@ -76,13 +76,13 @@ namespace TelemetryToRaven.Gpio
         {
             var timestamp = DateTime.UtcNow.TruncateTo(TimeSpan.FromMilliseconds(10));
             var series = session.TimeSeriesFor(meter.Id, meter.TimeseriesName);
-            var lastValues = session.Query<Meter>()
+            var lastValues = await session.Query<Meter>()
                 .Where(c => c.Id == meter.Id)
                 .Select(q => RavenQuery.TimeSeries(q, meter.TimeseriesName)
                     .Select(x => x.Count()).ToList()
-                ).Single();
+                ).ToListAsync();
 
-            var count = (int)lastValues.Results.Single().Count[0];
+            var count = (int)lastValues.Single().Results.Single().Count[0];
             if (count > 0)
             {
                 var rawLast = await series.GetAsync(start: count - 1);
