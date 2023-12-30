@@ -30,13 +30,12 @@ namespace TelemetryToRaven.Gpio
         }
         protected override async Task DoWork(CancellationToken cancellationToken)
         {
-            using var session = _store.OpenAsyncSession();
-            var meters = await GetGpioMeters(_stoppingToken, session);
-            var tasks = meters.Select(m => ReadGpio(m, session, _stoppingToken));
+            var meters = await GetGpioMeters(_stoppingToken);
+            var tasks = meters.Select(m => ReadGpio(m, _stoppingToken));
             await Task.WhenAll(tasks);
         }
 
-        private async Task ReadGpio(GpioMeter m, IAsyncDocumentSession session, CancellationToken cancellationToken)
+        private async Task ReadGpio(GpioMeter m, CancellationToken cancellationToken)
         {
             var pin = m.GpioPin;
             using var controller = new GpioController();
@@ -56,7 +55,7 @@ namespace TelemetryToRaven.Gpio
                 }
                 _logger.LogInformation($"{m.TimeseriesName} pin {m.GpioPin} Rise after {stopwatch.Elapsed}");
                 if (stopwatch.Elapsed > debounce && lowTime > debounce)
-                    await IncrementTimeseriesAsync(m, session);
+                    await IncrementTimeseriesAsync(m);
                 else
                     _logger.LogWarning("Bounce detected?");
                 stopwatch.Restart();
@@ -72,8 +71,9 @@ namespace TelemetryToRaven.Gpio
             }
         }
 
-        private async Task IncrementTimeseriesAsync(GpioMeter meter, IAsyncDocumentSession session)
+        private async Task IncrementTimeseriesAsync(GpioMeter meter)
         {
+            using var session = _store.OpenAsyncSession();
             var timestamp = DateTime.UtcNow.TruncateTo(TimeSpan.FromMilliseconds(10));
             var series = session.TimeSeriesFor(meter.Id, meter.TimeseriesName);
             var lastValues = await session.Query<Meter>()
@@ -99,9 +99,10 @@ namespace TelemetryToRaven.Gpio
             await session.SaveChangesAsync();
         }
 
-        private async Task<List<GpioMeter>> GetGpioMeters(CancellationToken cancellationToken,
-           IAsyncDocumentSession session)
+        private async Task<List<GpioMeter>> GetGpioMeters(CancellationToken cancellationToken)
         {
+
+            using var session = _store.OpenAsyncSession();
             var meters = await session.Query<GpioMeter>(collectionName: "Meters")
                 .Where(m => m.VendorInfo == GpioMeter)
                 .ToListAsync(cancellationToken);
