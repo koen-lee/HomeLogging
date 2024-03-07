@@ -35,12 +35,12 @@ List<Item> items = new();
 foreach (var pr in powers)
 {
     prices.TryGetValue(pr.Key, out var price);
-    solar1.TryGetValue(pr.Key, out var pv1);
-    solar2.TryGetValue(pr.Key, out var pv2);
+    solar1.TryGetValue(pr.Key, out var pv1); /* modbus kWh meter: negative for solar yield, positive for inverter vampire power*/
+    solar2.TryGetValue(pr.Key, out var pv2); /* self reported by inverter: positive for solar yield, no vampire power reported.*/
     items.Add(new Item(pr.Key, pr.Value / 1000, (pr.Value - pv1 + pv2) / 1000, price));
 }
 
-Console.WriteLine($"Total {items.Count} items ({100.0 * items.Count / prices.Count}%)");
+Console.WriteLine($"Total {items.Count} items ({100.0 * items.Count / prices.Count:0.00}%)");
 var consumption = items.Sum(i => i.usage);
 Print(consumption, "kWh");
 var consumptionWithoutSolar = items.Sum(i => i.usageWithoutSolar);
