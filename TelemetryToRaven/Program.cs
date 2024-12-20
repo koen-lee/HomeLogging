@@ -60,7 +60,7 @@ namespace TelemetryToRaven
             var store = new DocumentStore()
             {
                 Database = database,
-                Urls = new[] { serverUrl }
+                Urls = serverUrl.Split(';')
             };
             store.Conventions.FindCollectionName = type =>
             {
