@@ -8,7 +8,7 @@
   <Authors>KPvL</Authors>
   <Company></Company>
   <Product>Local Telemetry To RavenDB</Product>
-  <Version>1.30</Version>
+  <Version>1.31</Version>
   <OutputType>Exe</OutputType>
   <InstallService>true</InstallService>
     <UserSecretsId>dotnet-TelemetryToRaven-A1067D0E-67C3-4C10-B8EC-8DDECC3AF077</UserSecretsId>
