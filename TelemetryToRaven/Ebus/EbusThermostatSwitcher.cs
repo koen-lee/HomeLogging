@@ -43,11 +43,11 @@ namespace TelemetryToRaven
             // By using the average outside temperature, we don't need a hysteresis: it is updated once per hour.
             var outsideTemperature = GetFromThermostat<double>("OutsideTempAvg");
 
-            if (outsideTemperature > doc.PermanentSwitchTemperature)
+            var now = DateTime.UtcNow;
+            if (outsideTemperature > doc.PermanentSwitchTemperature && InOffPeriod(now.TimeOfDay, doc.SwitchTimePeriods))
                 SwitchTo("thermostat");
             else
             {
-                var now = DateTime.UtcNow;
                 var period = Max(doc.MinimumOnPeriod, doc.MinimumOffPeriod);
                 var setpoints = (await session.TimeSeriesFor(documentId, "DesiredFlowTemperature")
                     .GetAsync(now.Subtract(period), token: cancellationToken)
@@ -70,6 +70,16 @@ namespace TelemetryToRaven
                     SwitchTo("modulating");
                 }
             }
+        }
+
+        private bool InOffPeriod(TimeSpan timeOfDay, EbusMeter.TimeRange[] switchTimePeriods)
+        {
+            foreach (var period in switchTimePeriods)
+            {
+                if (period.On <= timeOfDay && timeOfDay <= period.Off)
+                    return false;
+            }
+            return true;
         }
 
         private void SwitchTo(string desiredSetting)
