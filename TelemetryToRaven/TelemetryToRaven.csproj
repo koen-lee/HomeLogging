@@ -21,6 +21,12 @@
     <None Remove="Deploy\writeminflowtemp.sh" />
   </ItemGroup>
   <ItemGroup> 
+    <Content Include="Deploy\switchboiler.sh">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <LinuxPath>/etc/telemetry/switchboiler.sh</LinuxPath>
+      <LinuxFileMode>755</LinuxFileMode>
+    </Content> 
     <Content Include="Deploy\mbus.sh" CopyToPublishDirectory="PreserveNewest" LinuxFileMode="755">
       <LinuxPath>/etc/telemetry/mbus.sh</LinuxPath>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
