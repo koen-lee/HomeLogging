@@ -79,8 +79,8 @@ public class ZeroExport
 
         static IEnumerable<KeyValuePair<DateTime, double>> GetTs(Raven.Client.Documents.Session.IDocumentSession session, string documentId, string tsName, string? collection = default)
         {
-            var from = new DateTime(2023, 6, 1).ToUniversalTime().AddHours(2);
-            var to = from.AddYears(1);
+            var from = new DateTime(2024, 4, 1).ToUniversalTime().AddHours(2);
+            var to = new DateTime(2024, 6, 1).ToUniversalTime().AddHours(2);
             Console.WriteLine($"Fetching {documentId}");
 
             var ts = session.TimeSeriesFor(documentId, tsName);
