@@ -17,10 +17,10 @@ then
         echo "out" > $pin
 fi
 
-timestamp="$(date -uIseconds)"
+timestamp="$(date -u +%FT%TZ)"
 pvMode=$([[ $(cat $pin) == 'in' ]] && echo "1" || echo "0")
 
 echo $timestamp Boiler PV mode: $pvMode Power: $power
 
-curl 'http://raspberrypi:8080/databases/Eiland17Logging/timeseries?docId=meters%2FHeatPumpBoiler' \
+curl 'http://tinkerboard:8080/databases/Eiland17Logging/timeseries?docId=meters%2FHeatPumpBoiler' \
   --data-raw '{"Name":"PVMode","Appends":[{"Tag":null,"Timestamp":"'"$timestamp"'","Values":['"$pvMode"']}]}'
