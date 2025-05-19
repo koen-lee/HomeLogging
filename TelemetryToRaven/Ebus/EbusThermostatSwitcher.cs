@@ -42,10 +42,19 @@ namespace TelemetryToRaven
 
             // By using the average outside temperature, we don't need a hysteresis: it is updated once per hour.
             var outsideTemperature = GetFromThermostat<double>("OutsideTempAvg");
-
+            var roomTemperatureSetpoint = GetFromThermostat<double>("z1ActualRoomTempDesired");
+            var roomTemperature = GetFromThermostat<double>("z1RoomTemp");
+            var diff = roomTemperatureSetpoint - roomTemperature;
+            
             var now = DateTime.UtcNow;
-            if (outsideTemperature > doc.PermanentSwitchTemperature && InOffPeriod(now.TimeOfDay, doc.SwitchTimePeriods))
+
+            if (outsideTemperature > doc.PermanentSwitchTemperature &&
+                (InOffPeriod(now.TimeOfDay, doc.SwitchTimePeriods)
+                || diff < 0.7))
+            {
+                _logger.LogInformation($"Desired {roomTemperatureSetpoint}, actual {roomTemperature}, setting thermostat.");
                 SwitchTo("thermostat");
+            }
             else
             {
                 var period = Max(doc.MinimumOnPeriod, doc.MinimumOffPeriod);
