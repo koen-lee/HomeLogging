@@ -30,19 +30,26 @@ namespace TelemetryToRaven.Kasa
 
         private async Task RegisterPlug(CancellationToken cancellationToken, KasaDevice meter)
         {
-            using var session = _store.OpenAsyncSession();
-            var plug = await GetPlug(cancellationToken, meter);
-            if (plug == null)
+            try
             {
-                _logger.LogWarning($"Plug {meter.Id} {meter.Mac} not found");
-                return;
+                using var session = _store.OpenAsyncSession();
+                var plug = await GetPlug(cancellationToken, meter);
+                if (plug == null)
+                {
+                    _logger.LogWarning($"Plug {meter.Id} {meter.Mac} not found");
+                    return;
+                }
+                var response = await plug.GetPowerReading(cancellationToken);
+                await GetOrUpdateEnergyOffset(cancellationToken, meter, response, session);
+                await session.StoreAsync(meter, cancellationToken);
+                session.TimeSeriesFor(meter, PowerEnergyTsName).Append(DateTimeOffset.Now.UtcDateTime,
+                    new[] { response.CurrentPowerInW, response.CumulativeEnergyInkWh + meter.EnergyOffset, response.CumulativeEnergyInkWh }, "W;kWh");
+                await session.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation($"Registered plug {meter.Id}");
             }
-            var response = await plug.GetPowerReading(cancellationToken);
-            await GetOrUpdateEnergyOffset(cancellationToken, meter, response, session);
-            await session.StoreAsync(meter, cancellationToken);
-            session.TimeSeriesFor(meter, PowerEnergyTsName).Append(DateTimeOffset.Now.UtcDateTime,
-                new[] { response.CurrentPowerInW, response.CumulativeEnergyInkWh + meter.EnergyOffset, response.CumulativeEnergyInkWh }, "W;kWh");
-            await session.SaveChangesAsync(cancellationToken);
+            catch (Exception ex) {
+                _logger.LogWarning(ex, $"Error registering plug {meter.Id}");
+            }
         }
 
         private async Task GetOrUpdateEnergyOffset(CancellationToken cancellationToken, KasaDevice meter,

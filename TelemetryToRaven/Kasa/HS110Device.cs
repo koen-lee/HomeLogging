@@ -50,6 +50,8 @@ public class HS110Device
         dynamic deserialized;
         using (var client = new TcpClient())
         {
+            client.ReceiveTimeout = 30_000; /*ms*/  
+            client.SendTimeout = 30_000; /*ms*/
             await client.ConnectAsync(_hostname, _port);
             await using (var stream = client.GetStream())
             {
